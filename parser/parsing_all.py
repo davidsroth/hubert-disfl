@@ -15,6 +15,7 @@ Terminals Parsing
 '''
 # get_IDdict will return built up IDdict and IDlist
 
+SWB_NXT_ROOT = "../switchboard/nxt_switchboard_ann/xml"
 
 def get_IDdict(root, IDdict, IDlist):
     for child in root:
@@ -22,48 +23,50 @@ def get_IDdict(root, IDdict, IDlist):
             wordid = child.get(namespaceIdentifier + 'id')
             IDdict[wordid] = []
             IDlist.append(wordid)
+            IDdict[wordid].append(child.get(namespaceIdentifier+'start'))
+            IDdict[wordid].append(child.get(namespaceIdentifier+'end'))
             # attach the word
             IDdict[wordid].append(child.get('orth'))
             # attach pos tag
             # IDdict[wordid].append(child.get('pos'))
             # attach start end time
-            # IDdict[wordid].append(child.get(namespaceIdentifier+'start'))
-            # IDdict[wordid].append(child.get(namespaceIdentifier+'end'))
 
             # build Phonedict if link exists
-            phoneword = child.find(namespaceIdentifier + 'pointer')
-            if phoneword is not None:
-                phoneword_ID = phoneword.get('href').split('#')[1][3:-1]
-                Phoneword_dict[phoneword_ID] = wordid
-            else:
-                continue
+            # phoneword = child.find(namespaceIdentifier + 'pointer')
+            # if phoneword is not None:
+            #     phoneword_ID = phoneword.get('href').split('#')[1][3:-1]
+            #     Phoneword_dict[phoneword_ID] = wordid
+            # else:
+            #     continue
 
         if child.tag == 'punc':
             wordid = child.get(namespaceIdentifier + 'id')
             IDdict[wordid] = []
             # attach the word
             IDlist.append(wordid)
+            IDdict[wordid].append("None")
+            IDdict[wordid].append("None")
             IDdict[wordid].append(child.text)
             # attach pos tag
             # IDdict[wordid].append(None)
             # attach start end time
-            # IDdict[wordid].append(None)
-            # IDdict[wordid].append(None)
         if child.tag == 'sil':
-            wordid = child.get(namespaceIdentifier + 'id')
-            IDdict[wordid] = []
-            IDlist.append(wordid)
-            IDdict[wordid].append('SILENCE')
+            pass
+            # wordid = child.get(namespaceIdentifier + 'id')
+            # IDdict[wordid] = []
+            # IDlist.append(wordid)
+            # IDdict[wordid].append('SILENCE')
             # attach pos tag
             # IDdict[wordid].append(None)
             # attach start end time
             # IDdict[wordid].append(None)
             # IDdict[wordid].append(None)
         if child.tag == 'trace':
-            wordid = child.get(namespaceIdentifier + 'id')
-            IDdict[wordid] = []
-            IDlist.append(wordid)
-            IDdict[wordid].append('TRACE')
+            pass
+            # wordid = child.get(namespaceIdentifier + 'id')
+            # IDdict[wordid] = []
+            # IDlist.append(wordid)
+            # IDdict[wordid].append('TRACE')
             # attach pos tag
             # IDdict[wordid].append(None)
             # attach start end time
@@ -87,6 +90,7 @@ def pretty_print(AIDdict, AIDlist, BIDdict, BIDlist):
 
     while indexA < len(AIDlist) - 1 or indexB < len(BIDlist) - 1:
         if inwhich == 'A':
+            print(swnumb, end=' ')
             if indexA >= len(AIDlist) - 1 and indexB < len(BIDlist):
                 print('A', AIDlist[indexA], end=' ')
                 for element in AIDdict[AIDlist[indexA]]:
@@ -126,6 +130,7 @@ def pretty_print(AIDdict, AIDlist, BIDdict, BIDlist):
             #     break
 
         if inwhich == 'B':
+            print(swnumb, end = ' ')
             if indexB >= len(BIDlist) - 1 and indexA < len(AIDlist):
                 print('B', BIDlist[indexB], end=' ')
                 for element in BIDdict[BIDlist[indexB]]:
@@ -164,6 +169,125 @@ def pretty_print(AIDdict, AIDlist, BIDdict, BIDlist):
             # if indexA >= len(AIDlist) and indexB >= len(BIDlist):
             #     break
 
+def get_tokens(AIDdict, AIDlist, BIDdict, BIDlist):
+    indexA = 0
+    indexB = 0
+    inwhich = ''
+    if AIDlist[0][1:].split('_')[0] == '1':
+        inwhich = 'A'
+    else:
+        inwhich = 'B'
+
+    tokens = []
+    token = []
+    while indexA < len(AIDlist) - 1 or indexB < len(BIDlist) - 1:
+        if inwhich == 'A':
+            # print(swnumb, end=' ')
+            token.append(swnumb)
+            if indexA >= len(AIDlist) - 1 and indexB < len(BIDlist):
+                # print('A', AIDlist[indexA], end=' ')
+                token.extend(['A', AIDlist[indexA]])
+                for element in AIDdict[AIDlist[indexA]]:
+                    if type(element) is tuple:
+                        for subele in element:
+                            # print(subele, end=' ')
+                            token.append(subele)
+                    elif type(element) is list:
+                        for subele in element:
+                            # print(subele, end=' ')
+                            token.append(subele)
+                    else:
+                        # print(element, end=' ')
+                        token.append(element)
+                # print("")
+                tokens.append(token)
+                token = []
+                inwhich = 'B'
+                tokens.append([])
+                continue
+
+            # print('A', AIDlist[indexA], end=' ')
+            token.extend(['A', AIDlist[indexA]])
+            for element in AIDdict[AIDlist[indexA]]:
+                if type(element) is tuple:
+                    for subele in element:
+                        token.append(subele)
+                        # print(subele, end=' ')
+                elif type(element) is list:
+                    for subele in element:
+                        token.append(subele)
+                        # print(subele, end=' ')
+                else:
+                    token.append(element)
+                    # print(element, end=' ')
+            tokens.append(token)
+            token = []
+            nextsentnum = int(AIDlist[indexA + 1].split('_')[0][1:])
+            sentnum = int(AIDlist[indexA].split('_')[0][1:])
+            if nextsentnum - sentnum > 1:
+                inwhich = 'B'
+                tokens.append([])
+            if nextsentnum - sentnum == 1:
+                tokens.append([])
+                # print('')
+            indexA += 1
+            # if indexA >= len(AIDlist) and indexB >= len(BIDlist):
+            #     break
+
+        if inwhich == 'B':
+            token.append(swnumb)
+            # print(swnumb, end = ' ')
+            if indexB >= len(BIDlist) - 1 and indexA < len(AIDlist):
+                # print('B', BIDlist[indexB], end=' ')
+                token.extend(['B', BIDlist[indexB]])
+                for element in BIDdict[BIDlist[indexB]]:
+                    if type(element) is tuple:
+                        for subele in element:
+                            token.append(subele)
+                            # print(subele, end=' ')
+                    elif type(element) is list:
+                        for subele in element:
+                            token.append(subele)
+                            # print(subele, end=' ')
+                    else:
+                        token.append(element)
+                        # print(element, end=' ')
+                # print("")
+                tokens.append(token)
+                token = []
+                inwhich = 'A'
+                tokens.append([])
+                continue
+
+            # print('B', BIDlist[indexB], end=' ')
+            token.extend(['B', BIDlist[indexB]])
+            for element in BIDdict[BIDlist[indexB]]:
+                if type(element) is tuple:
+                    for subele in element:
+                        token.append(subele)
+                        # print(subele, end=' ')
+                elif type(element) is list:
+                    for subele in element:
+                        token.append(subele)
+                        # print(subele, end=' ')
+                else:
+                    token.append(element)
+                    # print(element, end=' ')
+            # print("")
+            tokens.append(token)
+            token = []
+            nextsentnum = int(BIDlist[indexB + 1].split('_')[0][1:])
+            sentnum = int(BIDlist[indexB].split('_')[0][1:])
+            if nextsentnum - sentnum > 1:
+                inwhich = 'A'
+                tokens.append([])
+            if nextsentnum - sentnum == 1:
+                tokens.append([])
+                # print('')
+            indexB += 1
+            # if indexA >= len(AIDlist) and indexB >= len(BIDlist):
+            #     break
+    return tokens
 
 def attach(termi_attribute_dict, IDdict):
     for ID in IDdict:
@@ -251,72 +375,74 @@ namespaceIdentifier = '{http://nite.sourceforge.net/}'
 # their name pattern, only the first part varies
 swnumb = sys.argv[1]
 
-# use ET package retrieve tree structure data for A and B speaker
-Afilepath = os.path.join(os.getcwd(), 'terminals', swnumb + '.A.terminals.xml')
-Bfilepath = os.path.join(os.getcwd(), 'terminals', swnumb + '.B.terminals.xml')
-Atree = ET.parse(Afilepath)
-Btree = ET.parse(Bfilepath)
-
-Aroot = Atree.getroot()
-Broot = Btree.getroot()
-
-# IDdict is a dictionary for quick checking attribute of each word
-# IDdict structure:
-# {terminal_wordID: ['word', 'pos', 'starttime', 'endtime', ]}
-AIDdict = {}
-BIDdict = {}
-
-# IDlist is an array, for sequence record, because IDdict will loss sequence
-AIDlist = []
-BIDlist = []
-
-# phoneword_dict is a dict to link between terminal and phonewords transcripts
-# Don't distinguish A and B as they have different wordID, they won't conflict
-Phoneword_dict = {}
-
-AIDdict, AIDlist = get_IDdict(Aroot, AIDdict, AIDlist)
-BIDdict, BIDlist = get_IDdict(Broot, BIDdict, BIDlist)
-
-'''======================part_three======================'''
-try:
-    Afilepath = os.path.join(os.getcwd(), 'disfluency',
-                             swnumb + '.A.disfluency.xml')
-    Bfilepath = os.path.join(os.getcwd(), 'disfluency',
-                             swnumb + '.B.disfluency.xml')
+def parse(swbnumb):
+    # use ET package retrieve tree structure data for A and B speaker
+    Afilepath = os.path.join(SWB_NXT_ROOT, 'terminals', swnumb + '.A.terminals.xml')
+    Bfilepath = os.path.join(SWB_NXT_ROOT, 'terminals', swnumb + '.B.terminals.xml')
     Atree = ET.parse(Afilepath)
-    Aroot = Atree.getroot()
     Btree = ET.parse(Bfilepath)
+
+    Aroot = Atree.getroot()
     Broot = Btree.getroot()
 
-    # create 2 list to record the position of reparandum and repair in
-    # terminal
+    # IDdict is a dictionary for quick checking attribute of each word
+    # IDdict structure:
+    # {terminal_wordID: ['word', 'pos', 'starttime', 'endtime', ]}
+    AIDdict = {}
+    BIDdict = {}
 
-    # get reparandum_dict and repair_dict
-    Areparandum_dict, Arepair_dict = get_dfl_dict(Aroot)
-    Breparandum_dict, Brepair_dict = get_dfl_dict(Broot)
+    # IDlist is an array, for sequence record, because IDdict will loss sequence
+    AIDlist = []
+    BIDlist = []
 
-    # link termi_wordID to reparandum and repair
-    Atermi_dfl_dict = terminal_dfl_dict_builder(
-        Areparandum_dict, Arepair_dict, AIDdict)
-    Btermi_dfl_dict = terminal_dfl_dict_builder(
-        Breparandum_dict, Brepair_dict, BIDdict)
+    # phoneword_dict is a dict to link between terminal and phonewords transcripts
+    # Don't distinguish A and B as they have different wordID, they won't conflict
+    Phoneword_dict = {}
 
-    # attach reparandum/repair for pretty print
-    # attach_to_terminal_func(Atermi_dfl_dict, AIDdict)
-    # attach_to_terminal_func(Btermi_dfl_dict, BIDdict)
+    AIDdict, AIDlist = get_IDdict(Aroot, AIDdict, AIDlist)
+    BIDdict, BIDlist = get_IDdict(Broot, BIDdict, BIDlist)
+
+    '''======================part_three======================'''
+    try:
+        Afilepath = os.path.join(SWB_NXT_ROOT, 'disfluency',
+                                swnumb + '.A.disfluency.xml')
+        Bfilepath = os.path.join(SWB_NXT_ROOT, 'disfluency',
+                                swnumb + '.B.disfluency.xml')
+        Atree = ET.parse(Afilepath)
+        Aroot = Atree.getroot()
+        Btree = ET.parse(Bfilepath)
+        Broot = Btree.getroot()
+
+        # create 2 list to record the position of reparandum and repair in
+        # terminal
+
+        # get reparandum_dict and repair_dict
+        Areparandum_dict, Arepair_dict = get_dfl_dict(Aroot)
+        Breparandum_dict, Brepair_dict = get_dfl_dict(Broot)
+
+        # link termi_wordID to reparandum and repair
+        Atermi_dfl_dict = terminal_dfl_dict_builder(
+            Areparandum_dict, Arepair_dict, AIDdict)
+        Btermi_dfl_dict = terminal_dfl_dict_builder(
+            Breparandum_dict, Brepair_dict, BIDdict)
+
+        # attach reparandum/repair for pretty print
+        # attach_to_terminal_func(Atermi_dfl_dict, AIDdict)
+        # attach_to_terminal_func(Btermi_dfl_dict, BIDdict)
+
+        # pretty_print(AIDdict, AIDlist, BIDdict, BIDlist)
+    except:
+        Atermi_dfl_dict = None_dflfile_dict_builder(
+            AIDdict, Areparandum_dict, Arepair_dict)
+        Btermi_dfl_dict = None_dflfile_dict_builder(
+            BIDdict, Breparandum_dict, Brepair_dict)
+
+
+    '''======================combination======================'''
+
+
+    attach(Atermi_dfl_dict, AIDdict)
+    attach(Btermi_dfl_dict, BIDdict)
 
     # pretty_print(AIDdict, AIDlist, BIDdict, BIDlist)
-except:
-    Atermi_dfl_dict = None_dflfile_dict_builder(
-        AIDdict, Areparandum_dict, Arepair_dict)
-    Btermi_dfl_dict = None_dflfile_dict_builder(
-        BIDdict, Breparandum_dict, Brepair_dict)
-
-
-'''======================combination======================'''
-
-
-attach(Atermi_dfl_dict, AIDdict)
-attach(Btermi_dfl_dict, BIDdict)
-
-pretty_print(AIDdict, AIDlist, BIDdict, BIDlist)
+    return get_tokens(AIDdict, AIDlist, BIDdict, BIDlist)
