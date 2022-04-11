@@ -165,7 +165,7 @@ def pretty_print(AIDdict, AIDlist, BIDdict, BIDlist):
             #     break
 
 
-def attach_to_terminal_func(termi_attribute_dict, IDdict):
+def attach(termi_attribute_dict, IDdict):
     for ID in IDdict:
         IDdict[ID].append(termi_attribute_dict[ID])
 
@@ -316,7 +316,7 @@ except:
 '''======================combination======================'''
 
 
-attach_to_terminal_func(Atermi_dfl_dict, AIDdict)
-attach_to_terminal_func(Btermi_dfl_dict, BIDdict)
+attach(Atermi_dfl_dict, AIDdict)
+attach(Btermi_dfl_dict, BIDdict)
 
 pretty_print(AIDdict, AIDlist, BIDdict, BIDlist)
