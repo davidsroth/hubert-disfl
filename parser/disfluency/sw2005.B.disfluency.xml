@@ -1,0 +1,242 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<nite:disf_stream xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:nite="http://nite.sourceforge.net/" nite:id="sw2005-disfs-B">
+		<disfluency nite:id="sw2005.disf.2">
+			<reparandum nite:id="sw2005.disf.2.reparandum">
+				<nite:child href="sw2005.B.terminals.xml#id(s3_7)"/>
+				<nite:child href="sw2005.B.terminals.xml#id(s3_8)"/>
+				<nite:child href="sw2005.B.terminals.xml#id(s3_9)"/>
+			</reparandum>
+			<repair nite:id="sw2005.disf.2.repair">
+				<nite:child href="sw2005.B.terminals.xml#id(s3_11)"/>
+				<nite:child href="sw2005.B.terminals.xml#id(s3_12)"/>
+				<nite:child href="sw2005.B.terminals.xml#id(s3_13)"/>
+				<nite:child href="sw2005.B.terminals.xml#id(s3_14)"/>
+				<nite:child href="sw2005.B.terminals.xml#id(s3_15)"/>
+			</repair>
+		</disfluency>
+		<disfluency nite:id="sw2005.disf.3">
+			<reparandum nite:id="sw2005.disf.3.reparandum">
+				<nite:child href="sw2005.B.terminals.xml#id(s3_57)"/>
+				<nite:child href="sw2005.B.terminals.xml#id(s3_58)"/>
+				<nite:child href="sw2005.B.terminals.xml#id(s3_59)"/>
+			</reparandum>
+			<repair nite:id="sw2005.disf.3.repair">
+				<nite:child href="sw2005.B.terminals.xml#id(s3_61)"/>
+				<nite:child href="sw2005.B.terminals.xml#id(s3_62)"/>
+				<nite:child href="sw2005.B.terminals.xml#id(s3_63)"/>
+				<nite:child href="sw2005.B.terminals.xml#id(s3_64)"/>
+				<nite:child href="sw2005.B.terminals.xml#id(s3_65)"/>
+				<nite:child href="sw2005.B.terminals.xml#id(s3_66)"/>
+				<nite:child href="sw2005.B.terminals.xml#id(s3_67)"/>
+			</repair>
+		</disfluency>
+		<disfluency nite:id="sw2005.disf.4">
+			<reparandum nite:id="sw2005.disf.4.reparandum">
+				<nite:child href="sw2005.B.terminals.xml#id(s6_8)"/>
+				<nite:child href="sw2005.B.terminals.xml#id(s6_9)"/>
+			</reparandum>
+			<repair nite:id="sw2005.disf.4.repair">
+			</repair>
+		</disfluency>
+		<disfluency nite:id="sw2005.disf.5">
+			<reparandum nite:id="sw2005.disf.5.reparandum">
+				<nite:child href="sw2005.B.terminals.xml#id(s9_8)"/>
+				<nite:child href="sw2005.B.terminals.xml#id(s9_9)"/>
+			</reparandum>
+			<repair nite:id="sw2005.disf.5.repair">
+				<nite:child href="sw2005.B.terminals.xml#id(s9_11)"/>
+				<nite:child href="sw2005.B.terminals.xml#id(s9_12)"/>
+				<nite:child href="sw2005.B.terminals.xml#id(s9_13)"/>
+			</repair>
+		</disfluency>
+		<disfluency nite:id="sw2005.disf.6">
+			<reparandum nite:id="sw2005.disf.6.reparandum">
+				<nite:child href="sw2005.B.terminals.xml#id(s11_6)"/>
+				<nite:child href="sw2005.B.terminals.xml#id(s11_7)"/>
+				<nite:child href="sw2005.B.terminals.xml#id(s11_8)"/>
+			</reparandum>
+			<repair nite:id="sw2005.disf.6.repair">
+				<nite:child href="sw2005.B.terminals.xml#id(s11_10)"/>
+				<nite:child href="sw2005.B.terminals.xml#id(s11_11)"/>
+			</repair>
+		</disfluency>
+		<disfluency nite:id="sw2005.disf.7">
+			<reparandum nite:id="sw2005.disf.7.reparandum">
+				<nite:child href="sw2005.B.terminals.xml#id(s15_16)"/>
+				<nite:child href="sw2005.B.terminals.xml#id(s15_17)"/>
+				<nite:child href="sw2005.B.terminals.xml#id(s15_18)"/>
+				<nite:child href="sw2005.B.terminals.xml#id(s15_19)"/>
+				<nite:child href="sw2005.B.terminals.xml#id(s15_20)"/>
+			</reparandum>
+			<repair nite:id="sw2005.disf.7.repair">
+			</repair>
+		</disfluency>
+		<disfluency nite:id="sw2005.disf.8">
+			<reparandum nite:id="sw2005.disf.8.reparandum">
+				<nite:child href="sw2005.B.terminals.xml#id(s19_6)"/>
+				<nite:child href="sw2005.B.terminals.xml#id(s19_7)"/>
+			</reparandum>
+			<repair nite:id="sw2005.disf.8.repair">
+				<nite:child href="sw2005.B.terminals.xml#id(s19_9)"/>
+			</repair>
+		</disfluency>
+		<disfluency nite:id="sw2005.disf.9">
+			<reparandum nite:id="sw2005.disf.9.reparandum">
+				<nite:child href="sw2005.B.terminals.xml#id(s24_7)"/>
+				<nite:child href="sw2005.B.terminals.xml#id(s24_8)"/>
+			</reparandum>
+			<repair nite:id="sw2005.disf.9.repair">
+				<nite:child href="sw2005.B.terminals.xml#id(s24_10)"/>
+			</repair>
+		</disfluency>
+		<disfluency nite:id="sw2005.disf.10">
+			<reparandum nite:id="sw2005.disf.10.reparandum">
+				<nite:child href="sw2005.B.terminals.xml#id(s25_7)"/>
+				<nite:child href="sw2005.B.terminals.xml#id(s25_8)"/>
+			</reparandum>
+			<repair nite:id="sw2005.disf.10.repair">
+				<nite:child href="sw2005.B.terminals.xml#id(s25_10)"/>
+				<nite:child href="sw2005.B.terminals.xml#id(s25_11)"/>
+				<nite:child href="sw2005.B.terminals.xml#id(s25_12)"/>
+				<nite:child href="sw2005.B.terminals.xml#id(s25_13)"/>
+			</repair>
+		</disfluency>
+		<disfluency nite:id="sw2005.disf.11">
+			<reparandum nite:id="sw2005.disf.11.reparandum">
+				<nite:child href="sw2005.B.terminals.xml#id(s25_19)"/>
+				<nite:child href="sw2005.B.terminals.xml#id(s25_20)"/>
+				<nite:child href="sw2005.B.terminals.xml#id(s25_21)"/>
+			</reparandum>
+			<repair nite:id="sw2005.disf.11.repair">
+				<nite:child href="sw2005.B.terminals.xml#id(s25_23)"/>
+				<nite:child href="sw2005.B.terminals.xml#id(s25_24)"/>
+				<nite:child href="sw2005.B.terminals.xml#id(s25_25)"/>
+				<nite:child href="sw2005.B.terminals.xml#id(s25_26)"/>
+				<nite:child href="sw2005.B.terminals.xml#id(s25_27)"/>
+				<nite:child href="sw2005.B.terminals.xml#id(s25_28)"/>
+			</repair>
+		</disfluency>
+		<disfluency nite:id="sw2005.disf.29">
+			<reparandum nite:id="sw2005.disf.29.reparandum">
+				<nite:child href="sw2005.B.terminals.xml#id(s96_8)"/>
+				<nite:child href="sw2005.B.terminals.xml#id(s96_9)"/>
+			</reparandum>
+			<repair nite:id="sw2005.disf.29.repair">
+				<nite:child href="sw2005.B.terminals.xml#id(s96_11)"/>
+			</repair>
+		</disfluency>
+		<disfluency nite:id="sw2005.disf.31">
+			<reparandum nite:id="sw2005.disf.31.reparandum">
+				<nite:child href="sw2005.B.terminals.xml#id(s100_12)"/>
+				<nite:child href="sw2005.B.terminals.xml#id(s100_13)"/>
+			</reparandum>
+			<repair nite:id="sw2005.disf.31.repair">
+				<nite:child href="sw2005.B.terminals.xml#id(s100_15)"/>
+			</repair>
+		</disfluency>
+		<disfluency nite:id="sw2005.disf.32">
+			<reparandum nite:id="sw2005.disf.32.reparandum">
+				<nite:child href="sw2005.B.terminals.xml#id(s102_2)"/>
+				<nite:child href="sw2005.B.terminals.xml#id(s102_3)"/>
+				<nite:child href="sw2005.B.terminals.xml#id(s102_4)"/>
+			</reparandum>
+			<repair nite:id="sw2005.disf.32.repair">
+				<nite:child href="sw2005.B.terminals.xml#id(s102_6)"/>
+				<nite:child href="sw2005.B.terminals.xml#id(s102_7)"/>
+			</repair>
+		</disfluency>
+		<disfluency nite:id="sw2005.disf.33">
+			<reparandum nite:id="sw2005.disf.33.reparandum">
+				<nite:child href="sw2005.B.terminals.xml#id(s105_6)"/>
+			</reparandum>
+			<repair nite:id="sw2005.disf.33.repair">
+				<nite:child href="sw2005.B.terminals.xml#id(s105_8)"/>
+			</repair>
+		</disfluency>
+		<disfluency nite:id="sw2005.disf.34">
+			<reparandum nite:id="sw2005.disf.34.reparandum">
+				<nite:child href="sw2005.B.terminals.xml#id(s106_3)"/>
+				<nite:child href="sw2005.B.terminals.xml#id(s106_4)"/>
+				<nite:child href="sw2005.B.terminals.xml#id(s106_5)"/>
+				<nite:child href="sw2005.B.terminals.xml#id(s106_6)"/>
+			</reparandum>
+			<repair nite:id="sw2005.disf.34.repair">
+				<nite:child href="sw2005.B.terminals.xml#id(s106_8)"/>
+				<nite:child href="sw2005.B.terminals.xml#id(s106_9)"/>
+				<nite:child href="sw2005.B.terminals.xml#id(s106_10)"/>
+				<nite:child href="sw2005.B.terminals.xml#id(s106_11)"/>
+			</repair>
+		</disfluency>
+		<disfluency nite:id="sw2005.disf.35">
+			<reparandum nite:id="sw2005.disf.35.reparandum">
+				<nite:child href="sw2005.B.terminals.xml#id(s108_5)"/>
+				<nite:child href="sw2005.B.terminals.xml#id(s108_6)"/>
+				<nite:child href="sw2005.B.terminals.xml#id(s108_7)"/>
+			</reparandum>
+			<repair nite:id="sw2005.disf.35.repair">
+				<nite:child href="sw2005.B.terminals.xml#id(s108_9)"/>
+				<nite:child href="sw2005.B.terminals.xml#id(s108_10)"/>
+			</repair>
+		</disfluency>
+		<disfluency nite:id="sw2005.disf.36">
+			<reparandum nite:id="sw2005.disf.36.reparandum">
+				<nite:child href="sw2005.B.terminals.xml#id(s108_24)"/>
+				<nite:child href="sw2005.B.terminals.xml#id(s108_25)"/>
+			</reparandum>
+			<repair nite:id="sw2005.disf.36.repair">
+				<nite:child href="sw2005.B.terminals.xml#id(s108_27)"/>
+				<nite:child href="sw2005.B.terminals.xml#id(s108_28)"/>
+				<nite:child href="sw2005.B.terminals.xml#id(s108_29)"/>
+				<nite:child href="sw2005.B.terminals.xml#id(s108_30)"/>
+			</repair>
+		</disfluency>
+		<disfluency nite:id="sw2005.disf.37">
+			<reparandum nite:id="sw2005.disf.37.reparandum">
+				<nite:child href="sw2005.B.terminals.xml#id(s111_5)"/>
+				<nite:child href="sw2005.B.terminals.xml#id(s111_6)"/>
+				<nite:child href="sw2005.B.terminals.xml#id(s111_7)"/>
+			</reparandum>
+			<repair nite:id="sw2005.disf.37.repair">
+				<nite:child href="sw2005.B.terminals.xml#id(s111_9)"/>
+				<nite:child href="sw2005.B.terminals.xml#id(s111_10)"/>
+			</repair>
+		</disfluency>
+		<disfluency nite:id="sw2005.disf.53">
+			<reparandum nite:id="sw2005.disf.53.reparandum">
+				<nite:child href="sw2005.B.terminals.xml#id(s153_13)"/>
+				<nite:child href="sw2005.B.terminals.xml#id(s153_14)"/>
+			</reparandum>
+			<repair nite:id="sw2005.disf.53.repair">
+				<nite:child href="sw2005.B.terminals.xml#id(s153_16)"/>
+			</repair>
+		</disfluency>
+		<disfluency nite:id="sw2005.disf.54">
+			<reparandum nite:id="sw2005.disf.54.reparandum">
+			<disfluency nite:id="sw2005.disf.54.1">
+				<reparandum nite:id="sw2005.disf.54.1.reparandum">
+					<nite:child href="sw2005.B.terminals.xml#id(s153_29)"/>
+					<nite:child href="sw2005.B.terminals.xml#id(s153_30)"/>
+					<nite:child href="sw2005.B.terminals.xml#id(s153_31)"/>
+				</reparandum>
+				<repair nite:id="sw2005.disf.54.1.repair">
+					<nite:child href="sw2005.B.terminals.xml#id(s153_33)"/>
+					<nite:child href="sw2005.B.terminals.xml#id(s153_34)"/>
+					<nite:child href="sw2005.B.terminals.xml#id(s153_35)"/>
+				</repair>
+			</disfluency>
+			</reparandum>
+			<repair nite:id="sw2005.disf.54.repair">
+				<nite:child href="sw2005.B.terminals.xml#id(s153_38)"/>
+				<nite:child href="sw2005.B.terminals.xml#id(s153_39)"/>
+			</repair>
+		</disfluency>
+		<disfluency nite:id="sw2005.disf.59">
+			<reparandum nite:id="sw2005.disf.59.reparandum">
+				<nite:child href="sw2005.B.terminals.xml#id(s171_4)"/>
+				<nite:child href="sw2005.B.terminals.xml#id(s171_5)"/>
+			</reparandum>
+			<repair nite:id="sw2005.disf.59.repair">
+				<nite:child href="sw2005.B.terminals.xml#id(s171_7)"/>
+			</repair>
+		</disfluency>
+</nite:disf_stream>
