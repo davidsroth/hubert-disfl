@@ -1,3 +1,4 @@
+# Usage like: python parsing_all.py sw2005 > result/sw2005
 import os
 import xml.etree.ElementTree as ET
 import sys

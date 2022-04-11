@@ -1,3 +1,4 @@
+# usage like: python extract_all.py sw2005 > result_extracted/sw200
 import sys
 import os
 
