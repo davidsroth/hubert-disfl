@@ -1,0 +1,4 @@
+switchboard/
+venv/
+
+.DS_Store
