@@ -15,8 +15,8 @@ PART ONE:
 Terminals Parsing
 '''
 # get_IDdict will return built up IDdict and IDlist
-
-SWB_NXT_ROOT = "../switchboard/nxt_switchboard_ann/xml"
+PROJECT_ROOT = os.environ.get("PROJECT_ROOT")
+SWB_NXT_ROOT = f"{PROJECT_ROOT}/switchboard/nxt_switchboard_ann/xml"
 
 def get_IDdict(root, IDdict, IDlist):
     for child in root:
@@ -91,7 +91,7 @@ def pretty_print(AIDdict, AIDlist, BIDdict, BIDlist):
 
     while indexA < len(AIDlist) - 1 or indexB < len(BIDlist) - 1:
         if inwhich == 'A':
-            print(swnumb, end=' ')
+            # print(swnumb, end=' ')
             if indexA >= len(AIDlist) - 1 and indexB < len(BIDlist):
                 print('A', AIDlist[indexA], end=' ')
                 for element in AIDdict[AIDlist[indexA]]:
@@ -131,7 +131,7 @@ def pretty_print(AIDdict, AIDlist, BIDdict, BIDlist):
             #     break
 
         if inwhich == 'B':
-            print(swnumb, end = ' ')
+            # print(swnumb, end = ' ')
             if indexB >= len(BIDlist) - 1 and indexA < len(AIDlist):
                 print('B', BIDlist[indexB], end=' ')
                 for element in BIDdict[BIDlist[indexB]]:
@@ -170,7 +170,7 @@ def pretty_print(AIDdict, AIDlist, BIDdict, BIDlist):
             # if indexA >= len(AIDlist) and indexB >= len(BIDlist):
             #     break
 
-def get_tokens(AIDdict, AIDlist, BIDdict, BIDlist):
+def get_tokens(AIDdict, AIDlist, BIDdict, BIDlist, swnumb):
     indexA = 0
     indexB = 0
     inwhich = ''
@@ -374,14 +374,17 @@ namespaceIdentifier = '{http://nite.sourceforge.net/}'
 
 # for iteration purpose, we split filename according to
 # their name pattern, only the first part varies
-swnumb = sys.argv[1]
+# swnumb = sys.argv[1]
 
-def parse(swbnumb):
+def parse(swnumb):
     # use ET package retrieve tree structure data for A and B speaker
     Afilepath = os.path.join(SWB_NXT_ROOT, 'terminals', swnumb + '.A.terminals.xml')
     Bfilepath = os.path.join(SWB_NXT_ROOT, 'terminals', swnumb + '.B.terminals.xml')
-    Atree = ET.parse(Afilepath)
-    Btree = ET.parse(Bfilepath)
+    try:
+        Atree = ET.parse(Afilepath)
+        Btree = ET.parse(Bfilepath)
+    except:
+        return []
 
     Aroot = Atree.getroot()
     Broot = Btree.getroot()
@@ -446,4 +449,4 @@ def parse(swbnumb):
     attach(Btermi_dfl_dict, BIDdict)
 
     # pretty_print(AIDdict, AIDlist, BIDdict, BIDlist)
-    return get_tokens(AIDdict, AIDlist, BIDdict, BIDlist)
+    return get_tokens(AIDdict, AIDlist, BIDdict, BIDlist, swnumb)
