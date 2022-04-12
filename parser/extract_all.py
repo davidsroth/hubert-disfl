@@ -1,18 +1,17 @@
 # usage like: python extract_all.py sw2005 > result_extracted/sw200
 import sys
-import parsing_all
+from .parsing_all import parse
 
 filler_words = ["Um", "um", "Uh", "uh"]
 
-def extract(conversation_id, return_fluent=False):
-    content = parsing_all.parse(conversation_id)
+def extract(conversation_id, return_fluent=False, filler_words=filler_words):
+    content = parse(conversation_id)
     # List of dicts
     sentences = []
 
 
     sentDict = {}
     curr_text = []
-    # sentDict['labels'] = []
     running = "None"
     start_time = "None"
     end_time = "None"
@@ -20,7 +19,6 @@ def extract(conversation_id, return_fluent=False):
     sentence_id = "None"
     speaker = "None"
     for token in content:
-        # line = line.strip()
         if len(token) == 0:
             if running != "None" and return_fluent == False:
                 if running == '+':
@@ -28,8 +26,6 @@ def extract(conversation_id, return_fluent=False):
                     curr_text.append('<r>')
                 if running == '-':
                     curr_text.append('<r>')
-            # sentDict['labels'] = [conversation_id, speaker,  sentence_id, start_time, end_time]
-            # sentDict['end_time'] = end_time
             sentDict['conversation_id'] = conversation_id
             sentDict.update(
                 {
@@ -38,7 +34,7 @@ def extract(conversation_id, return_fluent=False):
                     'sentence_id': sentence_id,
                     'start_time': start_time,
                     'end_time': end_time,
-                    'text': " ".join(curr_text)
+                    'target_text': " ".join(curr_text)
                 }
             )
             sentences.append(sentDict)
@@ -83,17 +79,18 @@ def extract(conversation_id, return_fluent=False):
             
     return sentences
 
-swnumb = sys.argv[1]
-if len(sys.argv) > 2:
-    if sys.argv[2] == 'fluent':
-        fluent = True
-    elif sys.argv[2] == 'disfluent':
-        fluent = False
-    else:
-        print("Invalid input for 'fluency', proceeding with full disfluent text")
-        fluent = False
+if __name__ == "__main":
+    swnumb = sys.argv[1]
+    if len(sys.argv) > 2:
+        if sys.argv[2] == 'fluent':
+            fluent = True
+        elif sys.argv[2] == 'disfluent':
+            fluent = False
+        else:
+            print("Invalid input for 'fluency', proceeding with full disfluent text")
+            fluent = False
 
-sentences = extract(swnumb, return_fluent=fluent)
+    sentences = extract(swnumb, return_fluent=fluent)
 
-for sentDict in sentences:
-    print(sentDict)
+    for sentDict in sentences:
+        print(sentDict)
