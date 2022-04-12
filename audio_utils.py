@@ -12,17 +12,6 @@ SWB_ROOT = f"{PROJECT_ROOT}/switchboard"
 SWB_DATA_ROOT = f"{SWB_ROOT}/disks"
 DISK_MAP_PATH = f"{SWB_ROOT}/docs/swb1_all.dvd.tbl"
   
-def get_conversation_filepath(conversation_id, lookup):
-  return os.path.join(SWB_DATA_ROOT, lookup[conversation_id], f"{conversation_id}.sph")
-
-def get_conversation_slice(conversation_id, start, end, target_sr, lookup):#function to splice audio start=start time , end = end time in seconds
-  file_path = get_conversation_filepath(conversation_id, lookup)
-  audio,sr = librosa.load(file_path,sr=8000,offset=start,duration=end) # audio is a numpy array
-  if sr != target_sr:
-    audio = resample(audio, sr, target_sr)
-    sr = target_sr
-  return audio,sr
-
 def build_disk_lookup_table(file_path):
   with open(file_path, 'r') as f:
     content = f.read()
@@ -34,16 +23,27 @@ def build_disk_lookup_table(file_path):
     lookup[conversation_id] = disk
   return lookup
 
+lookup_table = build_disk_lookup_table(DISK_MAP_PATH)
+
+def get_conversation_filepath(conversation_id):
+  return os.path.join(SWB_DATA_ROOT, lookup_table[conversation_id], f"{conversation_id}.sph")
+
+def get_conversation_slice(conversation_id, start, end, target_sr=16000):#function to splice audio start=start time , end = end time in seconds
+  file_path = get_conversation_filepath(conversation_id, lookup_table)
+  audio, sr = librosa.load(file_path,sr=8000,offset=start,duration=end) # audio is a numpy array
+  return resample(audio, sr, target_sr)
+
 def resample(audio, source_sr, target_sr):
   if source_sr == target_sr:
     return audio
   return librosa.resample(audio, source_sr, target_sr)
 
 def extract_inputs(dataset, target_sr):
-  lookup = build_disk_lookup_table(DISK_MAP_PATH)
   inputs = []
   for conversation_id, start_time, end_time in dataset[['conversation_id', 'start_time', 'end_time']].itertuples():
-    inputs.append(get_conversation_slice(conversation_id, start_time, end_time, target_sr, lookup))
+    audio, sr = get_conversation_slice(conversation_id, start_time, end_time)
+    sample = resample(audio, sr, target_sr)
+    inputs.append(sample)
   
   return inputs
   
