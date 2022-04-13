@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 # !pip install librosa
+from responses import target
 import librosa
 # import librosa.display # You need this in librosa to be able to plot
 import os
@@ -33,11 +34,8 @@ def get_conversation_filepath(conversation_id):
 def get_conversation_slice(conversation_id, start, end, target_sr=16_000):#function to splice audio start=start time , end = end time in seconds
   file_path = get_conversation_filepath(conversation_id)
   audio, sr = librosa.load(file_path,sr=8000,offset=start,duration=end) # audio is a numpy array
-  return {
-    "array": audio,
-    "path": file_path,
-    "sampling_rate": sr
-  }
+  return audio
+  # return resample(audio, sr, target_sr)
 
 def resample(audio, source_sr, target_sr):
   if source_sr == target_sr:

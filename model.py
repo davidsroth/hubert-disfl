@@ -12,9 +12,10 @@ from switchboard_disfl import get_switchboard_disfluency_dataset
 from datasets import DatasetDict, load_metric, Dataset, Audio
 from typing import Dict, List, Optional, Union
 import numpy as np
+import librosa
 import wandb
 
-wandb.login()
+wandb.init(project="hubert-disfl")
 
 import transformers
 from transformers import (
@@ -367,6 +368,7 @@ def main():
     if training_args.do_train:
         train_conversation_ids_path = os.path.join(SWB_ROOT, 'splits', 'ws97-train-convs.list')
         train_conversation_ids = get_conversation_ids_from_file(train_conversation_ids_path)
+        train_conversation_ids = train_conversation_ids[:1]
         switchboard_df = get_switchboard_disfluency_dataset(train_conversation_ids, 16_000)
         raw_datasets["train"] = Dataset.from_pandas(switchboard_df)
 
@@ -449,17 +451,19 @@ def main():
         model.freeze_feature_encoder()
 
     # derive max & min input length for sample rate & max duration
-    max_input_length = data_args.max_duration_in_seconds * processor.sampling_rate
-    min_input_length = data_args.min_duration_in_seconds * processor.sampling_rate
+    max_input_length = data_args.max_duration_in_seconds * 16_000
+    min_input_length = data_args.min_duration_in_seconds * 16_000
     audio_column_name = data_args.audio_column_name
     num_workers = data_args.preprocessing_num_workers
     
     audio_column_name = data_args.audio_column_name
 
-    raw_datasets["train"] = raw_datasets["train"].cast_column("audio", Audio(sampling_rate=16_000))
+    # raw_datasets["train"] = raw_datasets["train"].cast_column("audio", Audio(sampling_rate=16_000))
 
     def prepare_dataset(batch):
         sample = batch[audio_column_name]
+
+        sample = librosa.resample(sample, 8_000, 16_000)
 
         batch["input_values"] = processor(sample)
         batch["input_length"] = len(batch["input_values"])
