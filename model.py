@@ -12,6 +12,9 @@ from switchboard_disfl import get_switchboard_disfluency_dataset
 from datasets import DatasetDict, load_metric, Dataset
 from typing import Dict, List, Optional, Union
 import numpy as np
+import wandb
+
+wandb.login()
 
 import transformers
 from transformers import (
