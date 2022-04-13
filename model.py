@@ -467,8 +467,9 @@ def main():
 
         batch["input_values"] = processor(sample)
         batch["input_length"] = len(batch["input_values"])
-
-        batch["labels"] = processor(batch[text_column_name]).input_ids
+        
+        with processor.as_target_processor():
+            batch["labels"] = processor(batch[text_column_name]).input_ids
         return batch
     
     with training_args.main_process_first(desc="dataset map preprocessing"):
