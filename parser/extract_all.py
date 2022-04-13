@@ -9,7 +9,6 @@ def extract(conversation_id, return_fluent=False, filler_words=filler_words):
     # List of dicts
     sentences = []
 
-
     sentDict = {}
     curr_text = []
     running = "None"
@@ -32,8 +31,8 @@ def extract(conversation_id, return_fluent=False, filler_words=filler_words):
                     'conversation_id': conversation_id,
                     'speaker': speaker,
                     'sentence_id': sentence_id,
-                    'start_time': start_time,
-                    'end_time': end_time,
+                    'start_time': float(start_time),
+                    'end_time': float(end_time),
                     'target_text': " ".join(curr_text)
                 }
             )
@@ -79,7 +78,7 @@ def extract(conversation_id, return_fluent=False, filler_words=filler_words):
             
     return sentences
 
-if __name__ == "__main":
+if __name__ == "__main__":
     swnumb = sys.argv[1]
     if len(sys.argv) > 2:
         if sys.argv[2] == 'fluent':
