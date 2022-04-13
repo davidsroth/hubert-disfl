@@ -9,7 +9,7 @@ from dataclasses import dataclass, field
 from audio_utils import PROJECT_ROOT, SWB_ROOT
 from text_utils import get_conversation_ids_from_file
 from switchboard_disfl import get_switchboard_disfluency_dataset
-from datasets import DatasetDict, load_metric, Dataset
+from datasets import DatasetDict, load_metric, Dataset, Audio
 from typing import Dict, List, Optional, Union
 import numpy as np
 import wandb
@@ -455,6 +455,9 @@ def main():
     num_workers = data_args.preprocessing_num_workers
     
     audio_column_name = data_args.audio_column_name
+
+    raw_datasets["train"] = raw_datasets["train"].cast_column("audio", Audio(sampling_rate=16_000))
+
     def prepare_dataset(batch):
         sample = batch[audio_column_name]
 
