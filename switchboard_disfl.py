@@ -9,10 +9,10 @@ class SwitchboardDisfluencyDataset(Dataset):
     def __init__(self, conversation_ids, target_sr=16000):
         self.target_sr = 16000
         self.data = text_utils.extract(conversation_ids)
-        assert len(self.targets) == len(self.input)
+        # assert len(self.targets) == len(self.input)
         
     def __len__(self):
-        return len(self.targets)
+        return len(self.data)
 
     def __getitem__(self, i):
         target = self.data[i]
