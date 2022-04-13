@@ -554,3 +554,5 @@ def main():
     transcription = processor.batch_decode(predicted_ids)
     print(transcription[0])
 
+if __name__ == "__main__":
+    main()
