@@ -363,7 +363,7 @@ def main():
     if training_args.do_train:
         train_conversation_ids_path = os.path.join(SWB_ROOT, 'splits', 'ws97-train-convs.list')
         train_conversation_ids = get_conversation_ids_from_file(train_conversation_ids_path)
-        raw_datasets["train"] = SwitchboardDisfluencyDataset(train_conversation_ids)
+        dataset = SwitchboardDisfluencyDataset(train_conversation_ids)
 
     logger.info("Training/evaluation parameters %s", training_args)
 
@@ -380,7 +380,7 @@ def main():
         return batch
     
     with training_args.main_process_first(desc="dataset map special characters removal"):
-        raw_datasets = raw_datasets.map(
+        dataset = dataset.map(
             remove_special_characters,
             remove_columns=[text_column_name],
             desc="remove special characters from datasets",
@@ -416,7 +416,7 @@ def main():
             if not os.path.isfile(vocab_file):
                 os.makedirs(tokenizer_name_or_path, exist_ok=True)
                 vocab_dict = create_vocabulary_from_data(
-                    raw_datasets,
+                    dataset,
                     word_delimiter_token=word_delimiter_token,
                     unk_token=unk_token,
                     pad_token=pad_token,
@@ -460,9 +460,9 @@ def main():
         return batch
     
     with training_args.main_process_first(desc="dataset map preprocessing"):
-        vectorized_datasets = raw_datasets.map(
+        vectorized_datasets = dataset.map(
             prepare_dataset,
-            remove_columns=next(iter(raw_datasets.values())).column_names,
+            remove_columns=next(iter(dataset.values())).column_names,
             num_proc=num_workers,
             desc="preprocess datasets",
         )
@@ -540,19 +540,19 @@ def main():
         trainer.save_metrics("train", metrics)
         trainer.save_state()
 
-    dataset=dataset.sort("id")
-    sampling_rate = dataset.features["audio"].sampling_rate
+    # dataset=dataset.sort("id")
+    # sampling_rate = dataset.features["audio"].sampling_rate
 
     # audio file is decoded on the fly
-    inputs = processor(dataset[1]["audio"]["array"], sampling_rate=sampling_rate, return_tensors="pt")
-    with torch.no_grad():
-        logits = model(**inputs).logits
+    # inputs = processor(dataset[1]["audio"]["array"], sampling_rate=sampling_rate, return_tensors="pt")
+    # with torch.no_grad():
+        # logits = model(**inputs).logits
 
-    predicted_ids = torch.argmax(logits, dim=-1)
+    # predicted_ids = torch.argmax(logits, dim=-1)
 
     # transcribe speech
-    transcription = processor.batch_decode(predicted_ids)
-    print(transcription[0])
+    # transcription = processor.batch_decode(predicted_ids)
+    # print(transcription[0])
 
 if __name__ == "__main__":
     main()
