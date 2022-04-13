@@ -8,7 +8,8 @@ import warnings
 from dataclasses import dataclass, field
 from audio_utils import PROJECT_ROOT, SWB_ROOT
 from text_utils import get_conversation_ids_from_file
-from datasets import DatasetDict, load_metric
+from switchboard_disfl import get_switchboard_disfluency_dataset
+from datasets import DatasetDict, load_metric, Dataset
 from typing import Dict, List, Optional, Union
 import numpy as np
 
@@ -363,7 +364,8 @@ def main():
     if training_args.do_train:
         train_conversation_ids_path = os.path.join(SWB_ROOT, 'splits', 'ws97-train-convs.list')
         train_conversation_ids = get_conversation_ids_from_file(train_conversation_ids_path)
-        dataset = SwitchboardDisfluencyDataset(train_conversation_ids)
+        switchboard_df = get_switchboard_disfluency_dataset(train_conversation_ids, 16_000)
+        raw_datasets["train"] = Dataset.from_pandas(switchboard_df)
 
     logger.info("Training/evaluation parameters %s", training_args)
 
@@ -380,61 +382,61 @@ def main():
         return batch
     
     with training_args.main_process_first(desc="dataset map special characters removal"):
-        dataset = dataset.map(
+        raw_datasets = raw_datasets.map(
             remove_special_characters,
             remove_columns=[text_column_name],
             desc="remove special characters from datasets",
         )
 
-    word_delimiter_token = data_args.word_delimiter_token
-    unk_token = data_args.unk_token
-    pad_token = data_args.pad_token
+    # word_delimiter_token = data_args.word_delimiter_token
+    # unk_token = data_args.unk_token
+    # pad_token = data_args.pad_token
 
     # 3. Next, let's load the config as we might need it to create
     # the tokenizer
     # load config
-    config = HubertConfig()
+    # config = HubertConfig()
 
     # 4. Next, if no tokenizer file is defined,
     # we create the vocabulary of the model by extracting all unique characters from
     # the training and evaluation datasets
     # We need to make sure that only first rank saves vocabulary
     # make sure all processes wait until vocab is created
-    tokenizer_name_or_path = model_args.tokenizer_name_or_path
-    tokenizer_kwargs = {}
-    if tokenizer_name_or_path is None:
-        # save vocab in training output dir
-        tokenizer_name_or_path = training_args.output_dir
+    # tokenizer_name_or_path = model_args.tokenizer_name_or_path
+    # tokenizer_kwargs = {}
+    # if tokenizer_name_or_path is None:
+    #     # save vocab in training output dir
+    #     tokenizer_name_or_path = training_args.output_dir
 
-        vocab_file = os.path.join(tokenizer_name_or_path, "vocab.json")
+    #     vocab_file = os.path.join(tokenizer_name_or_path, "vocab.json")
 
-        with training_args.main_process_first():
-            if training_args.overwrite_output_dir and os.path.isfile(vocab_file):
-                os.remove(vocab_file)
+    #     with training_args.main_process_first():
+    #         if training_args.overwrite_output_dir and os.path.isfile(vocab_file):
+    #             os.remove(vocab_file)
 
-        with training_args.main_process_first(desc="dataset map vocabulary creation"):
-            if not os.path.isfile(vocab_file):
-                os.makedirs(tokenizer_name_or_path, exist_ok=True)
-                vocab_dict = create_vocabulary_from_data(
-                    dataset,
-                    word_delimiter_token=word_delimiter_token,
-                    unk_token=unk_token,
-                    pad_token=pad_token,
-                )
+    #     with training_args.main_process_first(desc="dataset map vocabulary creation"):
+    #         if not os.path.isfile(vocab_file):
+    #             os.makedirs(tokenizer_name_or_path, exist_ok=True)
+    #             vocab_dict = create_vocabulary_from_data(
+    #                 raw_datasets,
+    #                 word_delimiter_token=word_delimiter_token,
+    #                 unk_token=unk_token,
+    #                 pad_token=pad_token,
+    #             )
 
-                # save vocab dict to be loaded into tokenizer
-                with open(vocab_file, "w") as file:
-                    json.dump(vocab_dict, file)
+    #             # save vocab dict to be loaded into tokenizer
+    #             with open(vocab_file, "w") as file:
+    #                 json.dump(vocab_dict, file)
 
-        # if tokenizer has just been created
-        # it is defined by `tokenizer_class` if present in config else by `model_type`
-        tokenizer_kwargs = {
-            "config": config if config.tokenizer_class is not None else None,
-            "tokenizer_type": config.model_type if config.tokenizer_class is None else None,
-            "unk_token": unk_token,
-            "pad_token": pad_token,
-            "word_delimiter_token": word_delimiter_token,
-        }
+    #     # if tokenizer has just been created
+    #     # it is defined by `tokenizer_class` if present in config else by `model_type`
+    #     tokenizer_kwargs = {
+    #         "config": config if config.tokenizer_class is not None else None,
+    #         "tokenizer_type": config.model_type if config.tokenizer_class is None else None,
+    #         "unk_token": unk_token,
+    #         "pad_token": pad_token,
+    #         "word_delimiter_token": word_delimiter_token,
+    #     }
 
     processor = Wav2Vec2Processor.from_pretrained('facebook/hubert-large-ls960-ft')
     
@@ -460,9 +462,9 @@ def main():
         return batch
     
     with training_args.main_process_first(desc="dataset map preprocessing"):
-        vectorized_datasets = dataset.map(
+        vectorized_datasets = raw_datasets.map(
             prepare_dataset,
-            remove_columns=next(iter(dataset.values())).column_names,
+            remove_columns=next(iter(raw_datasets.values())).column_names,
             num_proc=num_workers,
             desc="preprocess datasets",
         )
@@ -543,14 +545,14 @@ def main():
     # dataset=dataset.sort("id")
     # sampling_rate = dataset.features["audio"].sampling_rate
 
-    # audio file is decoded on the fly
+    # # audio file is decoded on the fly
     # inputs = processor(dataset[1]["audio"]["array"], sampling_rate=sampling_rate, return_tensors="pt")
     # with torch.no_grad():
-        # logits = model(**inputs).logits
+    #     logits = model(**inputs).logits
 
     # predicted_ids = torch.argmax(logits, dim=-1)
 
-    # transcribe speech
+    # # transcribe speech
     # transcription = processor.batch_decode(predicted_ids)
     # print(transcription[0])
 
