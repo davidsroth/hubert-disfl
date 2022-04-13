@@ -14,7 +14,7 @@ DISK_MAP_PATH = f"{SWB_ROOT}/docs/swb1_all.dvd.tbl"
   
 def build_disk_lookup_table(file_path):
   with open(file_path, 'r') as f:
-    content = f.read()
+    content = f.read().splitlines()
   
   lookup = {}
   for line in content:
