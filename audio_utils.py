@@ -20,16 +20,18 @@ def build_disk_lookup_table(file_path):
   for line in content:
     disk, conversation_id = line.split()
     conversation_id = conversation_id.split(".")[0]
-    lookup[conversation_id] = disk
+    conv_num = conversation_id.partition("0")[-1]
+    lookup[f"{conv_num}"] = disk
   return lookup
 
 lookup_table = build_disk_lookup_table(DISK_MAP_PATH)
 
 def get_conversation_filepath(conversation_id):
-  return os.path.join(SWB_DATA_ROOT, lookup_table[conversation_id], f"{conversation_id}.sph")
+  conv_num = conversation_id[-4:]
+  return os.path.join(SWB_DATA_ROOT, lookup_table[conv_num], f"sw0{conv_num}.sph")
 
 def get_conversation_slice(conversation_id, start, end, target_sr=16000):#function to splice audio start=start time , end = end time in seconds
-  file_path = get_conversation_filepath(conversation_id, lookup_table)
+  file_path = get_conversation_filepath(conversation_id)
   audio, sr = librosa.load(file_path,sr=8000,offset=start,duration=end) # audio is a numpy array
   return resample(audio, sr, target_sr)
 
