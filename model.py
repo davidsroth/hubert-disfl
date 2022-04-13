@@ -42,9 +42,9 @@ class ModelArguments:
     Arguments pertaining to which model/config/tokenizer we are going to fine-tune from.
     """
 
-    model_name_or_path: str = field(
-        metadata={"help": "Path to pretrained model or model identifier from huggingface.co/models"}
-    )
+    # model_name_or_path: str = field(
+    #     metadata={"help": "Path to pretrained model or model identifier from huggingface.co/models"}
+    # )
     tokenizer_name_or_path: Optional[str] = field(
         default=None,
         metadata={"help": "Path to pretrained tokenizer or tokenizer identifier from huggingface.co/models"},
@@ -111,9 +111,9 @@ class DataTrainingArguments:
     the command line.
     """
 
-    dataset_name: str = field(
-        metadata={"help": "The configuration name of the dataset to use (via the datasets library)."}
-    )
+    # dataset_name: str = field(
+    #     metadata={"help": "The configuration name of the dataset to use (via the datasets library)."}
+    # )
     dataset_config_name: str = field(
         default=None, metadata={"help": "The configuration name of the dataset to use (via the datasets library)."}
     )
