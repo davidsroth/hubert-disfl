@@ -369,29 +369,29 @@ def main():
         train_conversation_ids_path = os.path.join(SWB_ROOT, 'splits', 'ws97-train-convs.list')
         train_conversation_ids = get_conversation_ids_from_file(train_conversation_ids_path)
         train_conversation_ids = train_conversation_ids[:1]
-        switchboard_df = get_switchboard_disfluency_dataset(train_conversation_ids, 16_000)
+        switchboard_df = get_switchboard_disfluency_dataset(train_conversation_ids, 16_000, chars_to_ignore=data_args.chars_to_ignore)
         raw_datasets["train"] = Dataset.from_pandas(switchboard_df)
 
     logger.info("Training/evaluation parameters %s", training_args)
 
-    chars_to_ignore_regex = (
-        f'[{"".join(data_args.chars_to_ignore)}]' if data_args.chars_to_ignore is not None else None
-    )
     text_column_name = data_args.text_column_name
+    # chars_to_ignore_regex = (
+    #     f'[{"".join(data_args.chars_to_ignore)}]' if data_args.chars_to_ignore is not None else None
+    # )
 
-    def remove_special_characters(batch):
-        if chars_to_ignore_regex is not None:
-            batch["target_text"] = re.sub(chars_to_ignore_regex, "", batch[text_column_name]).lower() + " "
-        else:
-            batch["target_text"] = batch[text_column_name].lower() + " "
-        return batch
+    # def remove_special_characters(batch):
+    #     if chars_to_ignore_regex is not None:
+    #         batch["target_text"] = re.sub(chars_to_ignore_regex, "", batch[text_column_name]).lower() + " "
+    #     else:
+    #         batch["target_text"] = batch[text_column_name].lower() + " "
+    #     return batch
     
-    with training_args.main_process_first(desc="dataset map special characters removal"):
-        raw_datasets = raw_datasets.map(
-            remove_special_characters,
-            remove_columns=[text_column_name],
-            desc="remove special characters from datasets",
-        )
+    # with training_args.main_process_first(desc="dataset map special characters removal"):
+    #     raw_datasets = raw_datasets.map(
+    #         remove_special_characters,
+    #         remove_columns=[text_column_name],
+    #         desc="remove special characters from datasets",
+    #     )
 
     # word_delimiter_token = data_args.word_delimiter_token
     # unk_token = data_args.unk_token
@@ -463,7 +463,7 @@ def main():
     def prepare_dataset(batch):
         sample = batch[audio_column_name]
 
-        sample = librosa.resample(sample, 8_000, 16_000)
+        # sample = librosa.resample(sample, 8_000, 16_000)
 
         batch["input_values"] = processor(sample)
         batch["input_length"] = len(batch["input_values"])

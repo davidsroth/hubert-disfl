@@ -4,7 +4,7 @@ from .parsing_all import parse
 
 filler_words = ["Um", "um", "Uh", "uh"]
 
-def extract(conversation_id, return_fluent=False, filler_words=filler_words):
+def extract(conversation_id, return_fluent=False, filler_words=filler_words, chars_to_ignore=[]):
     content = parse(conversation_id)
     # List of dicts
     sentences = []
@@ -58,7 +58,7 @@ def extract(conversation_id, return_fluent=False, filler_words=filler_words):
                 speaker = token[1]
                 conversation_id = token[0]
             if return_fluent:
-                if token[-1] != '+' and token[-2] not in filler_words:
+                if token[-1] != '+' and token[-2] not in filler_words and token[-2] not in chars_to_ignore:
                     curr_text.append(token[-2])
             else:
                 curr_text.append(token[-2])
