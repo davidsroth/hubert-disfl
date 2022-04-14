@@ -42,8 +42,8 @@ def get_conversation_filepath(conversation_id):
 def get_conversation_slice(conversation_id, start, end, target_sr=16_000):#function to splice audio start=start time , end = end time in seconds
   file_path = get_conversation_filepath(conversation_id)
   audio, sr = librosa.load(file_path,sr=8000,offset=start,duration=end) # audio is a numpy array
-  # return audio
-  return resample(audio, sr, target_sr)
+  return audio
+  # return resample(audio, sr, target_sr)
 
 def resample(audio, source_sr, target_sr):
   if source_sr == target_sr:
