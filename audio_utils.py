@@ -17,6 +17,14 @@ UPSAMPLED_DATA_ROOT = f"{SWB_ROOT}/upsampled/disks"
 DISK_MAP_PATH = f"{SWB_ROOT}/docs/swb1_all.dvd.tbl"
   
 def build_disk_lookup_table(file_path):
+  """
+  Creating lookup table (dict) with keys = conversation number (conv_num)
+  and value = disk
+  Params:
+    file_path: str - .tbl file
+  Returns:
+    lookup: dict()
+  """
   with open(file_path, 'r') as f:
     content = f.read().splitlines()
   
@@ -31,24 +39,51 @@ def build_disk_lookup_table(file_path):
 lookup_table = build_disk_lookup_table(DISK_MAP_PATH)
 
 def get_conversation_filepath(conversation_id):
+  """
+  fetching conversation wav file
+  Params:
+    conversation_id: str - conversation id (like sw2005)
+  Returns:
+    file_path: str - wav file_path
+  """
   conv_num = conversation_id[-4:]
   if not os.path.exists(os.path.join(UPSAMPLED_DATA_ROOT, lookup_table[conv_num], "data", f"sw0{conv_num}.wav")):
     result = preprocess(os.path.join(SWB_DATA_ROOT, lookup_table[conv_num], "data", f"sw0{conv_num}.sph"), os.path.join(UPSAMPLED_DATA_ROOT, lookup_table[conv_num], "data", f"sw0{conv_num}.wav"))
     if result is not None:
       raise Exception(f"Preprocessing failed for {conversation_id}")
-    
-  return os.path.join(UPSAMPLED_DATA_ROOT, lookup_table[conv_num], "data", f"sw0{conv_num}.wav")
+  
+  file_path = os.path.join(UPSAMPLED_DATA_ROOT, lookup_table[conv_num], "data", f"sw0{conv_num}.wav")
+  return file_path
 
-def get_conversation_slice(conversation_id, start, end):#function to splice audio start=start time , end = end time in seconds
+def get_conversation_slice(conversation_id, start, end):
+  """
+  To splice audio start=start time , end=end time in seconds
+  Params:
+    conversation_id: str - conversation id (like sw2005)
+    start: start time
+    end: end time of slice
+  Returns:
+    audio: np array - sliced audio from start -> end
+  """
   file_path = get_conversation_filepath(conversation_id)
-  audio, sr = librosa.load(file_path,sr=16_000,offset=start,duration=end) # audio is a numpy array
+  audio, sr = librosa.load(file_path, sr=16_000, offset=start, duration=end) # audio is a numpy array
   return audio
   # return resample(audio, sr, target_sr)
 
 def resample(audio, source_sr, target_sr):
+  """
+  resample audio with new target sample rate
+  Params:
+    audio: np aray
+    source_sr: original sample rate
+    target_sr: target sample rate
+  Returns:
+    audio: np array - audio with target sample rate
+  """
   if source_sr == target_sr:
     return audio
-  return librosa.resample(audio, source_sr, target_sr)
+  else:
+    return librosa.resample(audio, source_sr, target_sr)
 
 def extract_inputs(dataset, target_sr):
   inputs = []
@@ -60,6 +95,12 @@ def extract_inputs(dataset, target_sr):
   return inputs
 
 def preprocess(in_path, out_path, target_sr=16_000):
+  """
+  Preprocessing for a conversation_id - writing to out_path with target sample rate
+  Params:
+    in_path: str - sph file path
+    out_path: str - wav file path
+  """
   disk_path, file = os.path.split(out_path)
   print(f"Preprocessing {file}",end='\r')
   if not os.path.isdir(disk_path):
