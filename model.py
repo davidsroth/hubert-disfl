@@ -261,7 +261,7 @@ class DataCollatorCTCWithPadding:
             input_features,
             padding=self.padding,
             pad_to_multiple_of=self.pad_to_multiple_of,
-            return_tensors="pt",
+            # return_tensors="pt",
         )
 
         with self.processor.as_target_processor():
@@ -269,7 +269,7 @@ class DataCollatorCTCWithPadding:
                 label_features,
                 padding=self.padding,
                 pad_to_multiple_of=self.pad_to_multiple_of_labels,
-                return_tensors="pt",
+                # return_tensors="pt",
             )
 
         # replace padding with -100 to ignore loss correctly
