@@ -4,6 +4,13 @@ import pandas as pd
 from parser import extract_all
 
 def extract(conversation_ids, fluent=False, chars_to_ignore=[]):
+    """
+    Extracts all target labels for each sentence using parser/extract_all.py
+    Params:
+        conversation_ids: List of conversation ids 
+        fluent: Boolean - if only fluent labels required
+        chars_to_ignore: List of any words to ignore
+    """
     targets = []
     for conversation_id in conversation_ids:
         targets.extend(extract_all.extract(conversation_id, return_fluent=fluent, chars_to_ignore=chars_to_ignore))
@@ -13,6 +20,8 @@ def extract(conversation_ids, fluent=False, chars_to_ignore=[]):
 def get_conversation_ids_from_file(filepath):
     """
     fetches conversation_ids from text file containing one id per line.
+    Params:
+        filepath: str - filepath containing all conversation ids
     """
     with open(filepath, 'r') as f:
         conversation_ids = f.read().splitlines()

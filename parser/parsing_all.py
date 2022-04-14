@@ -3,17 +3,6 @@ import os
 import xml.etree.ElementTree as ET
 import sys
 
-
-#########################################################################
-# Adapted from:
-# https://github.com/Jonbean/switchboard_parse/blob/master/parsing_all.py
-# and modified to simplify nested disfluencies for extraction.
-#########################################################################
-
-'''
-PART ONE:
-Terminals Parsing
-'''
 # get_IDdict will return built up IDdict and IDlist
 PROJECT_ROOT = os.environ.get("PROJECT_ROOT")
 SWB_NXT_ROOT = f"{PROJECT_ROOT}/switchboard/nxt_switchboard_ann/xml"
@@ -26,19 +15,7 @@ def get_IDdict(root, IDdict, IDlist):
             IDlist.append(wordid)
             IDdict[wordid].append(child.get(namespaceIdentifier+'start'))
             IDdict[wordid].append(child.get(namespaceIdentifier+'end'))
-            # attach the word
             IDdict[wordid].append(child.get('orth'))
-            # attach pos tag
-            # IDdict[wordid].append(child.get('pos'))
-            # attach start end time
-
-            # build Phonedict if link exists
-            # phoneword = child.find(namespaceIdentifier + 'pointer')
-            # if phoneword is not None:
-            #     phoneword_ID = phoneword.get('href').split('#')[1][3:-1]
-            #     Phoneword_dict[phoneword_ID] = wordid
-            # else:
-            #     continue
 
         if child.tag == 'punc':
             wordid = child.get(namespaceIdentifier + 'id')
@@ -48,31 +25,10 @@ def get_IDdict(root, IDdict, IDlist):
             IDdict[wordid].append("None")
             IDdict[wordid].append("None")
             IDdict[wordid].append(child.text)
-            # attach pos tag
-            # IDdict[wordid].append(None)
-            # attach start end time
         if child.tag == 'sil':
             pass
-            # wordid = child.get(namespaceIdentifier + 'id')
-            # IDdict[wordid] = []
-            # IDlist.append(wordid)
-            # IDdict[wordid].append('SILENCE')
-            # attach pos tag
-            # IDdict[wordid].append(None)
-            # attach start end time
-            # IDdict[wordid].append(None)
-            # IDdict[wordid].append(None)
         if child.tag == 'trace':
             pass
-            # wordid = child.get(namespaceIdentifier + 'id')
-            # IDdict[wordid] = []
-            # IDlist.append(wordid)
-            # IDdict[wordid].append('TRACE')
-            # attach pos tag
-            # IDdict[wordid].append(None)
-            # attach start end time
-            # IDdict[wordid].append(None)
-            # IDdict[wordid].append(None)
         else:
             continue
     return IDdict, IDlist
@@ -127,8 +83,6 @@ def pretty_print(AIDdict, AIDlist, BIDdict, BIDlist):
             if nextsentnum - sentnum == 1:
                 print('')
             indexA += 1
-            # if indexA >= len(AIDlist) and indexB >= len(BIDlist):
-            #     break
 
         if inwhich == 'B':
             # print(swnumb, end = ' ')
@@ -167,8 +121,6 @@ def pretty_print(AIDdict, AIDlist, BIDdict, BIDlist):
             if nextsentnum - sentnum == 1:
                 print('')
             indexB += 1
-            # if indexA >= len(AIDlist) and indexB >= len(BIDlist):
-            #     break
 
 def get_tokens(AIDdict, AIDlist, BIDdict, BIDlist, swnumb):
     indexA = 0
@@ -368,8 +320,6 @@ def terminal_dfl_dict_builder(reparandum_dict, repair_dict, IDdict):
     return termi_dfl_dict
 
 
-'''======================part_one======================'''
-# namespace is retrieved by hand ahead, it's correct
 namespaceIdentifier = '{http://nite.sourceforge.net/}'
 
 # for iteration purpose, we split filename according to
@@ -395,18 +345,14 @@ def parse(swnumb):
     AIDdict = {}
     BIDdict = {}
 
-    # IDlist is an array, for sequence record, because IDdict will loss sequence
     AIDlist = []
     BIDlist = []
 
-    # phoneword_dict is a dict to link between terminal and phonewords transcripts
-    # Don't distinguish A and B as they have different wordID, they won't conflict
     Phoneword_dict = {}
 
     AIDdict, AIDlist = get_IDdict(Aroot, AIDdict, AIDlist)
     BIDdict, BIDlist = get_IDdict(Broot, BIDdict, BIDlist)
 
-    '''======================part_three======================'''
     try:
         Afilepath = os.path.join(SWB_NXT_ROOT, 'disfluency',
                                 swnumb + '.A.disfluency.xml')
@@ -430,23 +376,13 @@ def parse(swnumb):
         Btermi_dfl_dict = terminal_dfl_dict_builder(
             Breparandum_dict, Brepair_dict, BIDdict)
 
-        # attach reparandum/repair for pretty print
-        # attach_to_terminal_func(Atermi_dfl_dict, AIDdict)
-        # attach_to_terminal_func(Btermi_dfl_dict, BIDdict)
-
-        # pretty_print(AIDdict, AIDlist, BIDdict, BIDlist)
     except:
         Atermi_dfl_dict = None_dflfile_dict_builder(
             AIDdict, Areparandum_dict, Arepair_dict)
         Btermi_dfl_dict = None_dflfile_dict_builder(
             BIDdict, Breparandum_dict, Brepair_dict)
 
-
-    '''======================combination======================'''
-
-
     attach(Atermi_dfl_dict, AIDdict)
     attach(Btermi_dfl_dict, BIDdict)
 
-    # pretty_print(AIDdict, AIDlist, BIDdict, BIDlist)
     return get_tokens(AIDdict, AIDlist, BIDdict, BIDlist, swnumb)

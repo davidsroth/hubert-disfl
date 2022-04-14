@@ -41,6 +41,15 @@ class SwitchboardDisfluencyDataset(Dataset):
 #         return batch
 
 def get_switchboard_disfluency_dataset(conversation_ids, target_sr, chars_to_ignore):
+    """
+    fetch dataframe with extracted audio labels with audio array
+    Params:
+        conversation_ids: List of conversation ids
+        target_sr: val - target sample rate
+        chars_to_ignore: List of any words to ignore
+    Returns:
+        df: pd.DataFrame
+    """
     print("Extracting text segments")
     df = text_utils.extract(conversation_ids, chars_to_ignore=chars_to_ignore)
     print("Extracting audio segments.")
