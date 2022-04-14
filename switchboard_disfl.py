@@ -44,6 +44,6 @@ def get_switchboard_disfluency_dataset(conversation_ids, target_sr, chars_to_ign
     print("Extracting text segments")
     df = text_utils.extract(conversation_ids, chars_to_ignore=chars_to_ignore)
     print("Extracting audio segments.")
-    df['audio'] = df.apply(lambda x: audio_utils.get_conversation_slice(x['conversation_id'], x['start_time'], x['end_time'], target_sr), axis=1)
+    df['audio'] = df.apply(lambda x: audio_utils.get_conversation_slice(x['conversation_id'], x['start_time'], x['end_time']), axis=1)
     print("Done extracting audio segments.")
     return df
