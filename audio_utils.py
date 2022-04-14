@@ -37,7 +37,7 @@ def get_conversation_filepath(conversation_id):
     if result is not None:
       raise Exception(f"Preprocessing failed for {conversation_id}")
     
-  return os.path.join(UPSAMPLED_DATA_ROOT, lookup_table[conv_num], "data", f"sw0{conv_num}.sph")
+  return os.path.join(UPSAMPLED_DATA_ROOT, lookup_table[conv_num], "data", f"sw0{conv_num}.wav")
 
 def get_conversation_slice(conversation_id, start, end, target_sr=16_000):#function to splice audio start=start time , end = end time in seconds
   file_path = get_conversation_filepath(conversation_id)
