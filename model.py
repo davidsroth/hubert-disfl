@@ -465,7 +465,7 @@ def main():
 
         # sample = librosa.resample(sample, 8_000, 16_000)
 
-        batch["input_values"] = processor(sample)
+        batch["input_values"] = processor(sample, sample_rate=16_000)["input_values"]
         batch["input_length"] = len(batch["input_values"])
         
         with processor.as_target_processor():
@@ -524,7 +524,7 @@ def main():
         args=training_args,
         compute_metrics=compute_metrics,
         train_dataset=vectorized_datasets["train"] if training_args.do_train else None,
-        eval_dataset=vectorized_datasets["eval"] if training_args.do_eval else None,
+        # eval_dataset=vectorized_datasets["eval"] if training_args.do_eval else None,
         tokenizer=processor,
     )
 
