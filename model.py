@@ -517,6 +517,9 @@ def main():
     # Instantiate custom data collator
     data_collator = DataCollatorCTCWithPadding(processor=processor)
 
+    print(vectorized_datasets[0])
+    return
+
     # Initialize Trainer
     trainer = Trainer(
         model=model,
