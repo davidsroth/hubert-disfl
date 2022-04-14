@@ -368,7 +368,7 @@ def main():
     if training_args.do_train:
         train_conversation_ids_path = os.path.join(SWB_ROOT, 'splits', 'ws97-train-convs.list')
         train_conversation_ids = get_conversation_ids_from_file(train_conversation_ids_path)
-        train_conversation_ids = train_conversation_ids[:1]
+        # train_conversation_ids = train_conversation_ids[:1]
         switchboard_df = get_switchboard_disfluency_dataset(train_conversation_ids, 16_000, chars_to_ignore=data_args.chars_to_ignore)
         raw_datasets["train"] = Dataset.from_pandas(switchboard_df)
 
@@ -465,7 +465,7 @@ def main():
 
         # sample = librosa.resample(sample, 8_000, 16_000)
 
-        batch["input_values"] = processor(sample, sampling_rate=16_000)["input_values"]
+        batch["input_values"] = processor(sample, sampling_rate=16_000)["input_values"][0]
         batch["input_length"] = len(batch["input_values"])
         
         with processor.as_target_processor():
@@ -516,6 +516,10 @@ def main():
 
     # Instantiate custom data collator
     data_collator = DataCollatorCTCWithPadding(processor=processor)
+
+    # print(vectorized_datasets["train"][0])
+    # print(vectorized_datasets["train"][0].keys())
+    # return
 
     # Initialize Trainer
     trainer = Trainer(

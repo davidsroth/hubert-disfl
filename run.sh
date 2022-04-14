@@ -1,0 +1,24 @@
+python model.py \
+	--model_name_or_path="hubert-disf" \
+	--output_dir="./hubert_fine_tune_out" \
+	--overwrite_output_dir \
+	--num_train_epochs="15" \
+	--per_device_train_batch_size="16" \
+	--gradient_accumulation_steps="2" \
+	--learning_rate="3e-4" \
+	--warmup_steps="500" \
+	--min_duration_in_seconds="3" \
+	--evaluation_strategy="steps" \
+	--text_column_name="target_text" \
+	--audio_column_name="audio" \
+	--length_column_name="input_length" \
+	--preprocessing_only="True" \
+	--save_steps="400" \
+	--eval_steps="100" \
+	--layerdrop="0.0" \
+	--save_total_limit="3" \
+	--freeze_feature_encoder \
+	--gradient_checkpointing \
+	--chars_to_ignore , ? . ! - \; \: \" “ % ‘ ” � \
+	--group_by_length \
+	--do_train

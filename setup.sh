@@ -1,1 +1,3 @@
-export PROJECT_ROOT = $pwd
+#!/bin/bash
+
+export PROJECT_ROOT=$(pwd)

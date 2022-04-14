@@ -2,3 +2,6 @@ switchboard/
 venv/
 
 .DS_Store
+*.pyc
+wandb/
+hubert_fine_tune_out/
