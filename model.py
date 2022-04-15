@@ -6,7 +6,7 @@ import os
 import sys
 import warnings
 from dataclasses import dataclass, field
-from audio_utils import PROJECT_ROOT, SWB_ROOT
+from audio_utils import PROJECT_ROOT, SWB_ROOT, get_conversation_slice
 from text_utils import get_conversation_ids_from_file
 from switchboard_disfl import get_switchboard_disfluency_dataset
 from datasets import DatasetDict, load_metric, Dataset, Audio
@@ -461,7 +461,7 @@ def main():
     # raw_datasets["train"] = raw_datasets["train"].cast_column("audio", Audio(sampling_rate=16_000))
 
     def prepare_dataset(batch):
-        sample = batch[audio_column_name]
+        sample = get_conversation_slice(batch["conversation_id"], batch["start_time"], batch["end_time"])
 
         # sample = librosa.resample(sample, 8_000, 16_000)
 
