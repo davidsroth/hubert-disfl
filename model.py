@@ -8,7 +8,7 @@ import warnings
 from dataclasses import dataclass, field
 from audio_utils import PROJECT_ROOT, SWB_ROOT, get_conversation_slice
 from text_utils import get_conversation_ids_from_file
-from switchboard_disfl import get_switchboard_disfluency_dataset
+from switchboard_disfl import SwitchboardDisfluencyDataset
 from datasets import DatasetDict, load_metric, Dataset, Audio
 from typing import Dict, List, Optional, Union
 import numpy as np
@@ -363,35 +363,10 @@ def main():
 
     set_seed(training_args.seed)
 
-    raw_datasets = DatasetDict()
+    # raw_datasets = DatasetDict()
 
-    if training_args.do_train:
-        train_conversation_ids_path = os.path.join(SWB_ROOT, 'splits', 'ws97-train-convs.list')
-        train_conversation_ids = get_conversation_ids_from_file(train_conversation_ids_path)
-        # train_conversation_ids = train_conversation_ids[:1]
-        switchboard_df = get_switchboard_disfluency_dataset(train_conversation_ids, 16_000, chars_to_ignore=data_args.chars_to_ignore)
-        raw_datasets["train"] = Dataset.from_pandas(switchboard_df)
 
     logger.info("Training/evaluation parameters %s", training_args)
-
-    text_column_name = data_args.text_column_name
-    # chars_to_ignore_regex = (
-    #     f'[{"".join(data_args.chars_to_ignore)}]' if data_args.chars_to_ignore is not None else None
-    # )
-
-    # def remove_special_characters(batch):
-    #     if chars_to_ignore_regex is not None:
-    #         batch["target_text"] = re.sub(chars_to_ignore_regex, "", batch[text_column_name]).lower() + " "
-    #     else:
-    #         batch["target_text"] = batch[text_column_name].lower() + " "
-    #     return batch
-    
-    # with training_args.main_process_first(desc="dataset map special characters removal"):
-    #     raw_datasets = raw_datasets.map(
-    #         remove_special_characters,
-    #         remove_columns=[text_column_name],
-    #         desc="remove special characters from datasets",
-    #     )
 
     # word_delimiter_token = data_args.word_delimiter_token
     # unk_token = data_args.unk_token
@@ -444,51 +419,18 @@ def main():
     #     }
 
     processor = Wav2Vec2Processor.from_pretrained('facebook/hubert-large-ls960-ft')
-    
     model = HubertForCTC.from_pretrained("facebook/hubert-large-ls960-ft")
+
+    if training_args.do_train:
+        train_conversation_ids_path = os.path.join(SWB_ROOT, 'splits', 'ws97-train-convs.list')
+        train_conversation_ids = get_conversation_ids_from_file(train_conversation_ids_path)
+        # train_conversation_ids = train_conversation_ids[:1]
+        # switchboard_df = get_switchboard_disfluency_da
+        train_data = SwitchboardDisfluencyDataset(train_conversation_ids, processor, chars_to_ignore=data_args.chars_to_ignore)
 
     if model_args.freeze_feature_encoder:
         model.freeze_feature_encoder()
 
-    # derive max & min input length for sample rate & max duration
-    max_input_length = data_args.max_duration_in_seconds * 16_000
-    min_input_length = data_args.min_duration_in_seconds * 16_000
-    audio_column_name = data_args.audio_column_name
-    num_workers = data_args.preprocessing_num_workers
-    
-
-    # raw_datasets["train"] = raw_datasets["train"].cast_column("audio", Audio(sampling_rate=16_000))
-
-    def prepare_dataset(batch):
-        sample = get_conversation_slice(batch["conversation_id"], batch["start_time"], batch["end_time"])
-
-        # sample = librosa.resample(sample, 8_000, 16_000)
-
-        batch["input_values"] = processor(sample, sampling_rate=16_000)["input_values"][0]
-        batch["input_length"] = len(batch["input_values"])
-        
-        with processor.as_target_processor():
-            batch["labels"] = processor(batch[text_column_name]).input_ids
-        return batch
-    
-    with training_args.main_process_first(desc="dataset map preprocessing"):
-        vectorized_datasets = raw_datasets.map(
-            prepare_dataset,
-            remove_columns=next(iter(raw_datasets.values())).column_names,
-            num_proc=num_workers,
-            desc="preprocess datasets",
-            batched=True
-        )
-
-        def is_audio_in_length_range(length):
-            return length > min_input_length and length < max_input_length
-
-        # filter data that is shorter than min_input_length
-        vectorized_datasets = vectorized_datasets.filter(
-            is_audio_in_length_range,
-            num_proc=num_workers,
-            input_columns=["input_length"],
-        )
 
     if data_args.preprocessing_only:
         logger.info(f"Data preprocessing finished. Files cached at {vectorized_datasets.cache_files}")
@@ -527,7 +469,7 @@ def main():
         data_collator=data_collator,
         args=training_args,
         compute_metrics=compute_metrics,
-        train_dataset=vectorized_datasets["train"] if training_args.do_train else None,
+        train_dataset=train_data,
         # eval_dataset=vectorized_datasets["eval"] if training_args.do_eval else None,
         tokenizer=processor.feature_extractor,
     )
@@ -546,12 +488,12 @@ def main():
         trainer.save_model()
 
         metrics = train_result.metrics
-        max_train_samples = (
-            data_args.max_train_samples
-            if data_args.max_train_samples is not None
-            else len(vectorized_datasets["train"])
-        )
-        metrics["train_samples"] = min(max_train_samples, len(vectorized_datasets["train"]))
+        # max_train_samples = (
+        #     data_args.max_train_samples
+        #     if data_args.max_train_samples is not None
+        #     else len(vectorized_datasets["train"])
+        # )
+        # metrics["train_samples"] = min(max_train_samples, len(vectorized_datasets["train"]))
 
         trainer.log_metrics("train", metrics)
         trainer.save_metrics("train", metrics)
