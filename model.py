@@ -456,7 +456,6 @@ def main():
     audio_column_name = data_args.audio_column_name
     num_workers = data_args.preprocessing_num_workers
     
-    audio_column_name = data_args.audio_column_name
 
     # raw_datasets["train"] = raw_datasets["train"].cast_column("audio", Audio(sampling_rate=16_000))
 
@@ -478,6 +477,7 @@ def main():
             remove_columns=next(iter(raw_datasets.values())).column_names,
             num_proc=num_workers,
             desc="preprocess datasets",
+            batched=True
         )
 
         def is_audio_in_length_range(length):
