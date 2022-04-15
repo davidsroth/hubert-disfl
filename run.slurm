@@ -1,8 +1,8 @@
 #!/bin/bash
 #SBATCH --job-name=hubert_disfl
 #SBATCH --open-mode=append
-#SBATCH --output=/scratch/$(whoami)/%x_%j.out
-#SBATCH --error=/scratch/$(whoami)/%x_%j.err
+#SBATCH --output=/scratch/%u/%x_%j.out
+#SBATCH --error=/scratch/%u/%x_%j.err
 #SBATCH --export=ALL
 #SBATCH --account=ds_ga_1012_2022sp
 #SBATCH --partition=n1s8-v100-1
