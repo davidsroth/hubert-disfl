@@ -26,7 +26,7 @@ def extract(conversation_id, return_fluent=False, filler_words=filler_words, cha
                 if running == '-':
                     curr_text.append('<r>')
             if start_time == "None" or end_time == "None":
-                print(f"Misaligned: {curr_text}")
+#                print(f"Misaligned: {curr_text}")
                 continue
             sentDict.update(
                 {
@@ -52,8 +52,8 @@ def extract(conversation_id, return_fluent=False, filler_words=filler_words, cha
             if start_time == "None":
                 if token[3] not in ["n/a", "non-aligned"]:
                     start_time = token[3]
-                else:
-                    print(curr_text)
+#                else:
+#                    print(curr_text)
                 sentence_id = token[2]
                 speaker = token[1]
                 conversation_id = token[0]
