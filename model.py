@@ -487,6 +487,7 @@ def main():
             remove_columns=next(iter(raw_datasets.values())).column_names,
             num_proc=num_workers,
             desc="preprocess datasets",
+            batched=True
         )
 
         def is_audio_in_length_range(length):
