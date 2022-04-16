@@ -432,10 +432,6 @@ def main():
         model.freeze_feature_encoder()
 
 
-    if data_args.preprocessing_only:
-        logger.info(f"Data preprocessing finished. Files cached at {vectorized_datasets.cache_files}")
-        return
-
     eval_metrics = {metric: load_metric(metric) for metric in data_args.eval_metrics}
     def compute_metrics(pred):
         pred_logits = pred.predictions
