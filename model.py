@@ -363,13 +363,26 @@ def main():
 
     set_seed(training_args.seed)
 
+    max_input_length = data_args.max_duration_in_seconds * 16_000
+    min_input_length = data_args.min_duration_in_seconds * 16_000
+    audio_column_name = data_args.audio_column_name
+    num_workers = data_args.preprocessing_num_workers
+
     raw_datasets = DatasetDict()
 
     if training_args.do_train:
         train_conversation_ids_path = os.path.join(SWB_ROOT, 'splits', 'ws97-train-convs.list')
-        train_conversation_ids = get_conversation_ids_from_file(train_conversation_ids_path)
+        train_conversation_ids = get_conversation_ids_from_file(train_conversation_ids_path)[75:100]
         # train_conversation_ids = train_conversation_ids[:1]
-        switchboard_df = get_switchboard_disfluency_dataset(train_conversation_ids, 16_000, chars_to_ignore=data_args.chars_to_ignore)
+        switchboard_df = get_switchboard_disfluency_dataset(
+            train_conversation_ids, 
+            16_000, 
+            chars_to_ignore=data_args.chars_to_ignore, 
+            min_length=data_args.min_duration_in_seconds, 
+            max_length=data_args.max_duration_in_seconds,
+            fluent=True
+        )
+        print(switchboard_df)
         raw_datasets["train"] = Dataset.from_pandas(switchboard_df)
 
     logger.info("Training/evaluation parameters %s", training_args)
@@ -444,33 +457,29 @@ def main():
     #     }
 
     processor = Wav2Vec2Processor.from_pretrained('facebook/hubert-large-ls960-ft')
-    
     model = HubertForCTC.from_pretrained("facebook/hubert-large-ls960-ft")
 
     if model_args.freeze_feature_encoder:
         model.freeze_feature_encoder()
-
-    # derive max & min input length for sample rate & max duration
-    max_input_length = data_args.max_duration_in_seconds * 16_000
-    min_input_length = data_args.min_duration_in_seconds * 16_000
-    audio_column_name = data_args.audio_column_name
-    num_workers = data_args.preprocessing_num_workers
     
-    audio_column_name = data_args.audio_column_name
-
     # raw_datasets["train"] = raw_datasets["train"].cast_column("audio", Audio(sampling_rate=16_000))
 
     def prepare_dataset(batch):
+        assert batch["duration"] > 0
         sample = get_conversation_slice(batch["conversation_id"], batch["start_time"], batch["end_time"])
 
-        # sample = librosa.resample(sample, 8_000, 16_000)
-
-        batch["input_values"] = processor(sample, sampling_rate=16_000)["input_values"][0]
+        batch["input_values"] = processor(sample, sampling_rate=16_000).input_values[0]
         batch["input_length"] = len(batch["input_values"])
         
         with processor.as_target_processor():
             batch["labels"] = processor(batch[text_column_name]).input_ids
         return batch
+        
+    for i in range(len(raw_datasets["train"])):
+        print(raw_datasets["train"][i])
+    print()
+    lengths = [raw_datasets["train"][i]["duration"] for i in range(len(raw_datasets["train"]))]
+    print(max(lengths), min(lengths))
     
     with training_args.main_process_first(desc="dataset map preprocessing"):
         vectorized_datasets = raw_datasets.map(
@@ -493,6 +502,9 @@ def main():
     if data_args.preprocessing_only:
         logger.info(f"Data preprocessing finished. Files cached at {vectorized_datasets.cache_files}")
         return
+    
+    lengths = [vectorized_datasets["train"][i]["input_length"]/16_000 for i in range(len(vectorized_datasets["train"]))]
+    print(max(lengths), min(lengths))
 
     eval_metrics = {metric: load_metric(metric) for metric in data_args.eval_metrics}
     def compute_metrics(pred):
