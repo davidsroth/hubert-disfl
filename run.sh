@@ -12,7 +12,6 @@ python model.py \
 	--text_column_name="target_text" \
 	--audio_column_name="audio" \
 	--length_column_name="input_length" \
-	--preprocessing_only="True" \
 	--save_steps="400" \
 	--eval_steps="100" \
 	--layerdrop="0.0" \
