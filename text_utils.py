@@ -15,7 +15,7 @@ def extract(conversation_ids, fluent=False, chars_to_ignore=[]):
     for conversation_id in conversation_ids:
         targets.extend(extract_all.extract(conversation_id, return_fluent=fluent, chars_to_ignore=chars_to_ignore))
     
-    return pd.DataFrame(targets)
+    return targets
 
 def get_conversation_ids_from_file(filepath):
     """
