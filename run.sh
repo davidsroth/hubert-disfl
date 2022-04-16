@@ -7,12 +7,12 @@ python model.py \
 	--gradient_accumulation_steps="2" \
 	--learning_rate="3e-4" \
 	--warmup_steps="500" \
-	--min_duration_in_seconds="3" \
+	--min_duration_in_seconds="2" \
+	--max_duration_in_seconds="15" \
 	--evaluation_strategy="steps" \
 	--text_column_name="target_text" \
 	--audio_column_name="audio" \
 	--length_column_name="input_length" \
-	--preprocessing_only="True" \
 	--save_steps="400" \
 	--eval_steps="100" \
 	--layerdrop="0.0" \
