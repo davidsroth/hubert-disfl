@@ -426,7 +426,7 @@ def main():
         train_conversation_ids = get_conversation_ids_from_file(train_conversation_ids_path)
         # train_conversation_ids = train_conversation_ids[:1]
         # switchboard_df = get_switchboard_disfluency_da
-        train_data = SwitchboardDisfluencyDataset(train_conversation_ids, processor, chars_to_ignore=data_args.chars_to_ignore)
+        train_data = SwitchboardDisfluencyDataset(train_conversation_ids, processor, chars_to_ignore=data_args.chars_to_ignore, fluent=True, min_length=data_args.min_duration_in_seconds, max_length=data_args.max_duration_in_seconds)
 
     if model_args.freeze_feature_encoder:
         model.freeze_feature_encoder()

@@ -9,8 +9,8 @@ class SwitchboardDisfluencyDataset(Dataset):
     """
     A torch.utils.data.Dataset wrapper for the Switchboard dataset with Disfluency annotations.
     """
-    def __init__(self, conversation_ids, processor, chars_to_ignore=None):
-        self.data = extract(conversation_ids, chars_to_ignore=chars_to_ignore)
+    def __init__(self, conversation_ids, processor, chars_to_ignore=None, fluent=False, min_length=0, max_length=20):
+        self.data = extract(conversation_ids, chars_to_ignore=chars_to_ignore, fluent=fluent, min_length=min_length, max_length=max_length)
         self.processor = processor
         # assert len(self.targets) == len(self.input)
         

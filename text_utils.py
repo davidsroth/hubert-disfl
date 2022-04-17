@@ -3,7 +3,7 @@ import sys
 import pandas as pd
 from parser import extract_all
 
-def extract(conversation_ids, fluent=False, chars_to_ignore=[]):
+def extract(conversation_ids, fluent=False, chars_to_ignore=[], min_length=0, max_length=20):
     """
     Extracts all target labels for each sentence using parser/extract_all.py
     Params:
@@ -13,7 +13,7 @@ def extract(conversation_ids, fluent=False, chars_to_ignore=[]):
     """
     targets = []
     for conversation_id in conversation_ids:
-        targets.extend(extract_all.extract(conversation_id, return_fluent=fluent, chars_to_ignore=chars_to_ignore))
+        targets.extend(extract_all.extract(conversation_id, return_fluent=fluent, chars_to_ignore=chars_to_ignore, min_length=min_length, max_length=max_length))
     
     return targets
 

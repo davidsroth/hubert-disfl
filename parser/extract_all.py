@@ -4,7 +4,7 @@ from .parsing_all import parse
 
 filler_words = ["Um", "um", "Uh", "uh"]
 
-def extract(conversation_id, return_fluent=False, filler_words=filler_words, chars_to_ignore=[]):
+def extract(conversation_id, return_fluent=False, filler_words=filler_words, chars_to_ignore=[], min_length=0, max_length=20):
     content = parse(conversation_id)
     # List of dicts
     sentences = []
@@ -27,6 +27,22 @@ def extract(conversation_id, return_fluent=False, filler_words=filler_words, cha
                     curr_text.append('<r>')
             if start_time == "None" or end_time == "None":
 #                print(f"Misaligned: {curr_text}")
+                start_time = "None"
+                end_time = "None"
+                conversation_id = "None"
+                sentence_id = "None"
+                sentDict = {}
+                curr_text = []
+                running = "None"
+                continue
+            if float(end_time) - float(start_time) < min_length or float(end_time) - float(start_time) > max_length:
+                start_time = "None"
+                end_time = "None"
+                conversation_id = "None"
+                sentence_id = "None"
+                sentDict = {}
+                curr_text = []
+                running = "None"
                 continue
             sentDict.update(
                 {
@@ -35,7 +51,9 @@ def extract(conversation_id, return_fluent=False, filler_words=filler_words, cha
                     'sentence_id': sentence_id,
                     'start_time': float(start_time),
                     'end_time': float(end_time),
-                    'target_text': " ".join(curr_text)
+                    'target_text': " ".join(curr_text),
+                    'duration': float(end_time) - float(start_time)
+
                 }
             )
             sentences.append(sentDict)
