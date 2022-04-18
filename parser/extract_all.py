@@ -4,7 +4,7 @@ from .parsing_all import parse
 
 filler_words = ["Um", "um", "Uh", "uh"]
 
-def extract(conversation_id, return_fluent=False, filler_words=filler_words, chars_to_ignore=[], min_length=0, max_length=20):
+def extract(conversation_id, return_fluent=False, filler_words=filler_words, min_length=0, max_length=20):
     content = parse(conversation_id)
     # List of dicts
     sentences = []
@@ -50,7 +50,7 @@ def extract(conversation_id, return_fluent=False, filler_words=filler_words, cha
                     # 'sentence_id': sentence_id,
                     'start_time': float(start_time),
                     'end_time': float(end_time),
-                    'target_text': " ".join(curr_text),
+                    'text': " ".join(curr_text),
                     'duration': float(end_time) - float(start_time)
                 }
             )
@@ -72,7 +72,7 @@ def extract(conversation_id, return_fluent=False, filler_words=filler_words, cha
                 speaker = token[1]
                 conversation_id = token[0]
             if return_fluent:
-                if token[-1] != '+' and token[-2] not in filler_words and token[-2] not in chars_to_ignore:
+                if token[-1] != '+' and token[-2] not in filler_words:
                     curr_text.append(token[-2])
             else:
                 curr_text.append(token[-2])

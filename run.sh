@@ -1,24 +1,25 @@
 python model.py \
-	--model_name_or_path="hubert-disf" \
+	--model_name_or_path="facebook/hubert-large-ls960-ft" \
 	--output_dir="./hubert_fine_tune_out" \
+	--overwrite_output_dir \
 	--num_train_epochs="15" \
 	--per_device_train_batch_size="16" \
-	--gradient_accumulation_steps="2" \
-	--learning_rate="3e-4" \
-	--warmup_steps="500" \
-	--min_duration_in_seconds="2" \
-	--max_duration_in_seconds="10" \
+	--gradient_accumulation_steps="4" \
+	--learning_rate="1e-4" \
+	--warmup_steps="1000" \
+	--min_duration_in_seconds="3" \
+	--max_duration_in_seconds="15" \
 	--evaluation_strategy="steps" \
-	--text_column_name="target_text" \
+	--text_column_name="text" \
 	--audio_column_name="audio" \
 	--length_column_name="input_length" \
-	--save_steps="400" \
-	--eval_steps="100" \
+	--save_steps="500" \
+	--eval_steps="500" \
 	--layerdrop="0.0" \
 	--save_total_limit="3" \
 	--freeze_feature_encoder \
 	--gradient_checkpointing \
-	--chars_to_ignore , ? . ! - \; \: \" “ % ‘ ” � \
+	--chars_to_ignore , ? . ! \; \: \" “ % ” � \
 	--group_by_length \
 	--fp16 \
-	--do_train
+	--do_train --do_eval

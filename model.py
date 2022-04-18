@@ -5,6 +5,7 @@ import logging
 import os
 import sys
 import warnings
+import random
 import multiprocessing
 from dataclasses import dataclass, field
 from audio_utils import PROJECT_ROOT, SWB_ROOT, get_conversation_slice
@@ -20,6 +21,10 @@ wandb.init(project="hubert-disfl")
 
 import transformers
 from transformers import (
+    AutoConfig,
+    AutoFeatureExtractor,
+    AutoModelForCTC,
+    AutoTokenizer,
     HfArgumentParser, 
     TrainingArguments, 
     Trainer,
@@ -170,7 +175,7 @@ class DataTrainingArguments:
         metadata={"help": "A list of characters to remove from the transcripts."},
     )
     eval_metrics: List[str] = list_field(
-        default=["wer"],
+        default=["wer", "cer"],
         metadata={"help": "A list of metrics the model should be evaluated on. E.g. `'wer cer'`"},
     )
     max_duration_in_seconds: float = field(
@@ -369,7 +374,7 @@ def main():
     audio_column_name = data_args.audio_column_name
 
 
-    num_workers = min(len(os.sched_getaffinity(0)), 8)
+    num_workers = min(len(os.sched_getaffinity(0)), 16)
 
     # raw_datasets = DatasetDict()
 
@@ -380,7 +385,7 @@ def main():
     switchboard_df = get_switchboard_disfluency_dataset(
         train_conversation_ids, 
         16_000, 
-        chars_to_ignore=data_args.chars_to_ignore, 
+        # chars_to_ignore=data_args.chars_to_ignore, 
         min_length=data_args.min_duration_in_seconds, 
         max_length=data_args.max_duration_in_seconds,
         fluent=True
@@ -391,28 +396,109 @@ def main():
 
     logger.info("Training/evaluation parameters %s", training_args)
 
+
     text_column_name = data_args.text_column_name
 
-    raw_datasets = raw_datasets.cast_column("audio", Audio(sampling_rate=16_000))
 
-    processor = Wav2Vec2Processor.from_pretrained('facebook/hubert-large-ls960-ft')
-    model = HubertForCTC.from_pretrained("facebook/hubert-large-ls960-ft")
+    chars_to_ignore_regex = (
+        f'[{"".join(data_args.chars_to_ignore)}]' if data_args.chars_to_ignore is not None else None
+    )
+
+    def remove_special_characters(batch):
+        if chars_to_ignore_regex is not None:
+            batch["target_text"] = re.sub(chars_to_ignore_regex, "", batch[data_args.text_column_name]).lower() + " "
+        else:
+            batch["target_text"] = batch[data_args.text_column_name].lower() + " "
+        return batch
+
+    with training_args.main_process_first(desc="dataset map special characters removal"):
+        raw_datasets = raw_datasets.map(
+            remove_special_characters,
+            remove_columns=[data_args.text_column_name],
+            desc="remove special characters from datasets",
+        )
+
+    vocab_file = os.path.join(training_args.output_dir, "vocab.json")
+
+    with training_args.main_process_first():
+        if training_args.overwrite_output_dir and os.path.isfile(vocab_file):
+            os.remove(vocab_file)
+
+    with training_args.main_process_first(desc="dataset map vocabulary creation"):
+        if not os.path.isfile(vocab_file):
+            os.makedirs(training_args.output_dir, exist_ok=True)
+            vocab_dict = create_vocabulary_from_data(raw_datasets)
+
+            # save vocab dict to be loaded into tokenizer
+            with open(vocab_file, "w") as file:
+                json.dump(vocab_dict, file)
+
+
+    config = AutoConfig.from_pretrained(
+        model_args.model_name_or_path, cache_dir=model_args.cache_dir
+    )
+    # tokenizer is defined by `tokenizer_class` if present in config else by `model_type`
+    config_for_tokenizer = config if config.tokenizer_class is not None else None
+    tokenizer_type = config.model_type if config.tokenizer_class is None else None
+    # load feature_extractor, tokenizer and create processor
+    tokenizer = AutoTokenizer.from_pretrained(
+        training_args.output_dir,
+        config=config_for_tokenizer,
+        tokenizer_type=tokenizer_type,
+        unk_token="[UNK]",
+        pad_token="[PAD]",
+        word_delimiter_token="|",
+    )
+    feature_extractor = AutoFeatureExtractor.from_pretrained(
+        model_args.model_name_or_path, cache_dir=model_args.cache_dir
+    )
+    processor = Wav2Vec2Processor(feature_extractor=feature_extractor, tokenizer=tokenizer)
+
+    # adapt config
+    config.update(
+        {
+            "feat_proj_dropout": model_args.feat_proj_dropout,
+            "attention_dropout": model_args.attention_dropout,
+            "hidden_dropout": model_args.hidden_dropout,
+            "final_dropout": model_args.final_dropout,
+            "mask_time_prob": model_args.mask_time_prob,
+            "mask_time_length": model_args.mask_time_length,
+            "mask_feature_prob": model_args.mask_feature_prob,
+            "mask_feature_length": model_args.mask_feature_length,
+            "gradient_checkpointing": training_args.gradient_checkpointing,
+            "layerdrop": model_args.layerdrop,
+            "ctc_loss_reduction": model_args.ctc_loss_reduction,
+            "pad_token_id": processor.tokenizer.pad_token_id,
+            "vocab_size": len(processor.tokenizer),
+            "activation_dropout": model_args.activation_dropout,
+        }
+    )
+
+    # create model
+    model = AutoModelForCTC.from_pretrained(
+        model_args.model_name_or_path,
+        cache_dir=model_args.cache_dir,
+        config=config
+    )
+    # processor = Wav2Vec2Processor.from_pretrained('facebook/hubert-large-ls960-ft')
+    # model = HubertForCTC.from_pretrained("facebook/hubert-large-ls960-ft", kwargs=config)
 
     if model_args.freeze_feature_encoder:
         model.freeze_feature_encoder()
     
-    # raw_datasets["train"] = raw_datasets["train"].cast_column("audio", Audio(sampling_rate=16_000))
+    raw_datasets = raw_datasets.cast_column("audio", Audio(sampling_rate=16_000))
+    
 
     def prepare_dataset(batch):
-        start_frame = int(float(batch["start_time"])*16_000)
-        end_frame = int(float(batch["end_time"])*16_000)
+        start_frame = int(batch["start_time"]*16_000)
+        end_frame = int(batch["end_time"]*16_000)
         sample = batch["audio"]["array"][start_frame:end_frame]
         
         batch["input_values"] = processor(sample, sampling_rate=16_000).input_values[0]
         batch["input_length"] = len(batch["input_values"])
         
         with processor.as_target_processor():
-            batch["labels"] = processor(batch[text_column_name]).input_ids
+            batch["labels"] = processor(batch["target_text"]).input_ids
         return batch
         
     # lengths = [raw_datasets["train"][i]["duration"] for i in range(len(raw_datasets["train"]))]
@@ -421,7 +507,7 @@ def main():
     with training_args.main_process_first(desc="dataset map preprocessing"):
         vectorized_datasets = raw_datasets.map(
             prepare_dataset,
-            remove_columns=next(iter(raw_datasets.values())).column_names,
+            remove_columns=raw_datasets["train"].column_names,
             num_proc=num_workers,
             desc="preprocess datasets",
         )
@@ -429,7 +515,7 @@ def main():
         def is_audio_in_length_range(length):
             return length > min_input_length and length < max_input_length
         
-        def is_target_empty(labels):
+        def is_target_nonempty(labels):
             return len(labels) > 0
 
         # filter data that is shorter than min_input_length
@@ -439,10 +525,15 @@ def main():
             input_columns=["input_length"],
         )
         vectorized_datasets = vectorized_datasets.filter(
-            is_target_empty,
+            is_target_nonempty,
             num_proc=num_workers,
             input_columns=["labels"],
         )
+
+        vectorized_datasets = vectorized_datasets.remove_columns("input_length")
+
+    rand_indx = random.randint(0, len(vectorized_datasets["train"]))
+    print(processor.decode(vectorized_datasets["train"][rand_idx]["labels"]))
 
     if data_args.preprocessing_only:
         logger.info(f"Data preprocessing finished. Files cached at {vectorized_datasets.cache_files}")
@@ -513,6 +604,19 @@ def main():
         trainer.log_metrics("train", metrics)
         trainer.save_metrics("train", metrics)
         trainer.save_state()
+    
+    # Evaluation
+    results = {}
+    if training_args.do_eval:
+        logger.info("*** Evaluate ***")
+        metrics = trainer.evaluate()
+        max_eval_samples = (
+            data_args.max_eval_samples if data_args.max_eval_samples is not None else len(vectorized_datasets["test"])
+        )
+        metrics["eval_samples"] = min(max_eval_samples, len(vectorized_datasets["test"]))
+
+        trainer.log_metrics("eval", metrics)
+        trainer.save_metrics("eval", metrics)
 
     # dataset=dataset.sort("id")
     # sampling_rate = dataset.features["audio"].sampling_rate

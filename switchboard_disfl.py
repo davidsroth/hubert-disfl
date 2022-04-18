@@ -40,7 +40,7 @@ class SwitchboardDisfluencyDataset(Dataset):
 #             batch["target_text"] = batch[text_column_name].lower() + " "
 #         return batch
 
-def get_switchboard_disfluency_dataset(conversation_ids, target_sr, chars_to_ignore, min_length=0, max_length=20, fluent=False):
+def get_switchboard_disfluency_dataset(conversation_ids, target_sr, min_length=0, max_length=20, fluent=False):
     """
     fetch dataframe with extracted audio labels with audio array
     Params:
@@ -51,7 +51,8 @@ def get_switchboard_disfluency_dataset(conversation_ids, target_sr, chars_to_ign
         df: pd.DataFrame
     """
     # print("Extracting text segments")
-    df = text_utils.extract(conversation_ids, chars_to_ignore=chars_to_ignore, min_length=min_length, max_length=max_length, fluent=fluent)
+    df = text_utils.extract(conversation_ids, min_length=min_length, max_length=max_length, fluent=fluent)
+    # print(df.sample(n=5)['target_text'])
     # print("Extracting audio segments.")
     # df['audio'] = df.apply(lambda x: audio_utils.get_conversation_slice(x['conversation_id'], x['start_time'], x['end_time']), axis=1)
     # print("Done extracting audio segments.")
