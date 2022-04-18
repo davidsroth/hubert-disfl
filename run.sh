@@ -1,14 +1,13 @@
 python model.py \
 	--model_name_or_path="hubert-disf" \
 	--output_dir="./hubert_fine_tune_out" \
-	--overwrite_output_dir \
 	--num_train_epochs="15" \
 	--per_device_train_batch_size="16" \
 	--gradient_accumulation_steps="2" \
 	--learning_rate="3e-4" \
 	--warmup_steps="500" \
 	--min_duration_in_seconds="2" \
-	--max_duration_in_seconds="15" \
+	--max_duration_in_seconds="10" \
 	--evaluation_strategy="steps" \
 	--text_column_name="target_text" \
 	--audio_column_name="audio" \
@@ -21,4 +20,5 @@ python model.py \
 	--gradient_checkpointing \
 	--chars_to_ignore , ? . ! - \; \: \" “ % ‘ ” � \
 	--group_by_length \
+	--fp16 \
 	--do_train
