@@ -68,8 +68,6 @@ def extract(conversation_id, return_fluent=False, filler_words=filler_words, cha
             if start_time == "None":
                 if token[3] not in ["n/a", "non-aligned"]:
                     start_time = token[3]
-                else:
-                    print(curr_text)
                 sentence_id = token[2]
                 speaker = token[1]
                 conversation_id = token[0]
