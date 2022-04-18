@@ -428,12 +428,20 @@ def main():
 
         def is_audio_in_length_range(length):
             return length > min_input_length and length < max_input_length
+        
+        def is_target_empty(labels):
+            return len(labels) > 0
 
         # filter data that is shorter than min_input_length
         vectorized_datasets = vectorized_datasets.filter(
             is_audio_in_length_range,
             num_proc=num_workers,
             input_columns=["input_length"],
+        )
+        vectorized_datasets = vectorized_datasets.filter(
+            is_target_empty,
+            num_proc=num_workers,
+            input_columns=["labels"],
         )
 
     if data_args.preprocessing_only:
