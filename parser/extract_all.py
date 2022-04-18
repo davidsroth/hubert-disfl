@@ -4,7 +4,17 @@ from .parsing_all import parse
 
 filler_words = ["Um", "um", "Uh", "uh"]
 
-def extract(conversation_id, return_fluent=False, filler_words=filler_words, min_length=0, max_length=20):
+def extract(conversation_id, return_fluent=False, filler_words=filler_words, chars_to_ignore=[], min_length=0, max_length=20):
+    """
+    Annotate disfluency using parsing of conversations and returning in the form of sequence
+    Params:
+        conversation_id: str - conversation id
+        return_fluent: bool - if only fluent transcript required
+        filler_words: List of tokens
+        chars_to_ignore: List of characters to remove from the transcripts
+    Returns:
+        sentences: list - of extracted annotations of sequences in a conversation
+    """
     content = parse(conversation_id)
     # List of dicts
     sentences = []
