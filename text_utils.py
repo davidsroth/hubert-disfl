@@ -1,6 +1,7 @@
 # import torch
 import sys
 import pandas as pd
+from audio_utils import get_conversation_filepath
 from parser import extract_all
 
 def extract(conversation_ids, fluent=False, chars_to_ignore=[], min_length=0, max_length=20):
@@ -15,7 +16,10 @@ def extract(conversation_ids, fluent=False, chars_to_ignore=[], min_length=0, ma
     """
     targets = []
     for conversation_id in conversation_ids:
-        targets.extend(extract_all.extract(conversation_id, return_fluent=fluent, chars_to_ignore=chars_to_ignore, min_length=min_length, max_length=max_length))
+        sentences = extract_all.extract(conversation_id, return_fluent=fluent, chars_to_ignore=chars_to_ignore, min_length=min_length, max_length=max_length)
+        for sentence in sentences:
+            sentence["audio"] = get_conversation_filepath(conversation_id)
+        targets.extend(sentences)
     
     return pd.DataFrame(targets)
 

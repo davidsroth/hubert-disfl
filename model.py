@@ -368,93 +368,29 @@ def main():
     audio_column_name = data_args.audio_column_name
     num_workers = data_args.preprocessing_num_workers
 
-    raw_datasets = DatasetDict()
+    # raw_datasets = DatasetDict()
 
-    if training_args.do_train:
-        train_conversation_ids_path = os.path.join(SWB_ROOT, 'splits', 'ws97-train-convs.list')
-        train_conversation_ids = get_conversation_ids_from_file(train_conversation_ids_path)[75:100]
-        # train_conversation_ids = train_conversation_ids[:1]
-        switchboard_df = get_switchboard_disfluency_dataset(
-            train_conversation_ids, 
-            16_000, 
-            chars_to_ignore=data_args.chars_to_ignore, 
-            min_length=data_args.min_duration_in_seconds, 
-            max_length=data_args.max_duration_in_seconds,
-            fluent=True
-        )
-        print(switchboard_df)
-        raw_datasets["train"] = Dataset.from_pandas(switchboard_df)
+    # if training_args.do_train:
+    train_conversation_ids_path = os.path.join(SWB_ROOT, 'splits', 'ws97-train-convs.list')
+    train_conversation_ids = get_conversation_ids_from_file(train_conversation_ids_path)
+    # train_conversation_ids = train_conversation_ids[:1]
+    switchboard_df = get_switchboard_disfluency_dataset(
+        train_conversation_ids, 
+        16_000, 
+        chars_to_ignore=data_args.chars_to_ignore, 
+        min_length=data_args.min_duration_in_seconds, 
+        max_length=data_args.max_duration_in_seconds,
+        fluent=True
+    )
+    dataset = Dataset.from_pandas(switchboard_df)
+    raw_datasets = dataset.train_test_split(test_size=0.1)
+    print(raw_datasets.column_names)
 
     logger.info("Training/evaluation parameters %s", training_args)
 
     text_column_name = data_args.text_column_name
-    # chars_to_ignore_regex = (
-    #     f'[{"".join(data_args.chars_to_ignore)}]' if data_args.chars_to_ignore is not None else None
-    # )
 
-    # def remove_special_characters(batch):
-    #     if chars_to_ignore_regex is not None:
-    #         batch["target_text"] = re.sub(chars_to_ignore_regex, "", batch[text_column_name]).lower() + " "
-    #     else:
-    #         batch["target_text"] = batch[text_column_name].lower() + " "
-    #     return batch
-    
-    # with training_args.main_process_first(desc="dataset map special characters removal"):
-    #     raw_datasets = raw_datasets.map(
-    #         remove_special_characters,
-    #         remove_columns=[text_column_name],
-    #         desc="remove special characters from datasets",
-    #     )
-
-    # word_delimiter_token = data_args.word_delimiter_token
-    # unk_token = data_args.unk_token
-    # pad_token = data_args.pad_token
-
-    # 3. Next, let's load the config as we might need it to create
-    # the tokenizer
-    # load config
-    # config = HubertConfig()
-
-    # 4. Next, if no tokenizer file is defined,
-    # we create the vocabulary of the model by extracting all unique characters from
-    # the training and evaluation datasets
-    # We need to make sure that only first rank saves vocabulary
-    # make sure all processes wait until vocab is created
-    # tokenizer_name_or_path = model_args.tokenizer_name_or_path
-    # tokenizer_kwargs = {}
-    # if tokenizer_name_or_path is None:
-    #     # save vocab in training output dir
-    #     tokenizer_name_or_path = training_args.output_dir
-
-    #     vocab_file = os.path.join(tokenizer_name_or_path, "vocab.json")
-
-    #     with training_args.main_process_first():
-    #         if training_args.overwrite_output_dir and os.path.isfile(vocab_file):
-    #             os.remove(vocab_file)
-
-    #     with training_args.main_process_first(desc="dataset map vocabulary creation"):
-    #         if not os.path.isfile(vocab_file):
-    #             os.makedirs(tokenizer_name_or_path, exist_ok=True)
-    #             vocab_dict = create_vocabulary_from_data(
-    #                 raw_datasets,
-    #                 word_delimiter_token=word_delimiter_token,
-    #                 unk_token=unk_token,
-    #                 pad_token=pad_token,
-    #             )
-
-    #             # save vocab dict to be loaded into tokenizer
-    #             with open(vocab_file, "w") as file:
-    #                 json.dump(vocab_dict, file)
-
-    #     # if tokenizer has just been created
-    #     # it is defined by `tokenizer_class` if present in config else by `model_type`
-    #     tokenizer_kwargs = {
-    #         "config": config if config.tokenizer_class is not None else None,
-    #         "tokenizer_type": config.model_type if config.tokenizer_class is None else None,
-    #         "unk_token": unk_token,
-    #         "pad_token": pad_token,
-    #         "word_delimiter_token": word_delimiter_token,
-    #     }
+    raw_datasets = raw_datasets.cast_column("audio", Audio(sampling_rate=16_000))
 
     processor = Wav2Vec2Processor.from_pretrained('facebook/hubert-large-ls960-ft')
     model = HubertForCTC.from_pretrained("facebook/hubert-large-ls960-ft")
@@ -465,9 +401,10 @@ def main():
     # raw_datasets["train"] = raw_datasets["train"].cast_column("audio", Audio(sampling_rate=16_000))
 
     def prepare_dataset(batch):
-        assert batch["duration"] > 0
-        sample = get_conversation_slice(batch["conversation_id"], batch["start_time"], batch["end_time"])
-
+        start_frame = int(float(batch["start_time"])*16_000)
+        end_frame = int(float(batch["end_time"])*16_000)
+        sample = batch["audio"]["array"][start_frame:end_frame]
+        
         batch["input_values"] = processor(sample, sampling_rate=16_000).input_values[0]
         batch["input_length"] = len(batch["input_values"])
         
@@ -475,11 +412,8 @@ def main():
             batch["labels"] = processor(batch[text_column_name]).input_ids
         return batch
         
-    for i in range(len(raw_datasets["train"])):
-        print(raw_datasets["train"][i])
-    print()
-    lengths = [raw_datasets["train"][i]["duration"] for i in range(len(raw_datasets["train"]))]
-    print(max(lengths), min(lengths))
+    # lengths = [raw_datasets["train"][i]["duration"] for i in range(len(raw_datasets["train"]))]
+    # print(max(lengths), min(lengths))
     
     with training_args.main_process_first(desc="dataset map preprocessing"):
         vectorized_datasets = raw_datasets.map(
@@ -487,7 +421,6 @@ def main():
             remove_columns=next(iter(raw_datasets.values())).column_names,
             num_proc=num_workers,
             desc="preprocess datasets",
-            batched=True
         )
 
         def is_audio_in_length_range(length):
@@ -504,15 +437,15 @@ def main():
         logger.info(f"Data preprocessing finished. Files cached at {vectorized_datasets.cache_files}")
         return
     
-    lengths = [vectorized_datasets["train"][i]["input_length"]/16_000 for i in range(len(vectorized_datasets["train"]))]
-    print(max(lengths), min(lengths))
+    # lengths = [vectorized_datasets["train"][i]["input_length"]/16_000 for i in range(len(vectorized_datasets["train"]))]
+    # print(max(lengths), min(lengths))
 
     eval_metrics = {metric: load_metric(metric) for metric in data_args.eval_metrics}
     def compute_metrics(pred):
         pred_logits = pred.predictions
         pred_ids = np.argmax(pred_logits, axis=-1)
 
-        pred.label_ids[pred.label_ids == -100] = processor.pad_token_id
+        pred.label_ids[pred.label_ids == -100] = 0
 
         pred_str = processor.batch_decode(pred_ids)
         # we do not want to group tokens when computing the metrics
@@ -540,8 +473,8 @@ def main():
         data_collator=data_collator,
         args=training_args,
         compute_metrics=compute_metrics,
-        train_dataset=vectorized_datasets["train"] if training_args.do_train else None,
-        # eval_dataset=vectorized_datasets["eval"] if training_args.do_eval else None,
+        train_dataset=vectorized_datasets["train"],
+        eval_dataset=vectorized_datasets["test"],
         tokenizer=processor.feature_extractor,
     )
 
