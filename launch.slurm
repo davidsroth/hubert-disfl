@@ -14,5 +14,5 @@ source /ext3/env.sh
 conda activate
 cd /home/$(whoami)/scratch/projects/hubert-disfl
 source setup.sh
-sh distributed_run.sh
+sh run.sh
 "
