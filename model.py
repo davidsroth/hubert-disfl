@@ -5,6 +5,7 @@ import logging
 import os
 import sys
 import warnings
+import multiprocessing
 from dataclasses import dataclass, field
 from audio_utils import PROJECT_ROOT, SWB_ROOT, get_conversation_slice
 from text_utils import get_conversation_ids_from_file
@@ -366,7 +367,9 @@ def main():
     max_input_length = data_args.max_duration_in_seconds * 16_000
     min_input_length = data_args.min_duration_in_seconds * 16_000
     audio_column_name = data_args.audio_column_name
-    num_workers = data_args.preprocessing_num_workers
+
+
+    num_workers = min(len(os.sched_getaffinity(0)), 8)
 
     # raw_datasets = DatasetDict()
 
