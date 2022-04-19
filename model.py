@@ -361,7 +361,7 @@ def main():
     # Log on each process the small summary:
     logger.warning(
         f"Process rank: {training_args.local_rank}, device: {training_args.device}, n_gpu: {training_args.n_gpu}"
-        f"distributed training: {bool(training_args.local_rank != -1)}, 16-bits training: {training_args.fp16}"
+        f" distributed training: {bool(training_args.local_rank != -1)}, 16-bits training: {training_args.fp16}"
     )
     # Set the verbosity to info of the Transformers logger (on main process only):
     if is_main_process(training_args.local_rank):
@@ -394,6 +394,8 @@ def main():
     raw_datasets = dataset.train_test_split(test_size=0.1)
     print(raw_datasets.column_names)
 
+    rand_indx = random.randint(0, len(raw_datasets["train"]))
+    print(raw_datasets["train"][rand_indx]["text"])
     logger.info("Training/evaluation parameters %s", training_args)
 
 
@@ -406,9 +408,9 @@ def main():
 
     def remove_special_characters(batch):
         if chars_to_ignore_regex is not None:
-            batch["target_text"] = re.sub(chars_to_ignore_regex, "", batch[data_args.text_column_name]).lower() + " "
+            batch["target_text"] = re.sub(chars_to_ignore_regex, "", batch[data_args.text_column_name]).upper() + " "
         else:
-            batch["target_text"] = batch[data_args.text_column_name].lower() + " "
+            batch["target_text"] = batch[data_args.text_column_name].upper() + " "
         return batch
 
     with training_args.main_process_first(desc="dataset map special characters removal"):
@@ -417,42 +419,45 @@ def main():
             remove_columns=[data_args.text_column_name],
             desc="remove special characters from datasets",
         )
+    print(raw_datasets["train"][rand_indx]["target_text"])
 
-    vocab_file = os.path.join(training_args.output_dir, "vocab.json")
+    # vocab_file = os.path.join(training_args.output_dir, "vocab.json")
 
-    with training_args.main_process_first():
-        if training_args.overwrite_output_dir and os.path.isfile(vocab_file):
-            os.remove(vocab_file)
+    # with training_args.main_process_first():
+    #     if training_args.overwrite_output_dir and os.path.isfile(vocab_file):
+    #         os.remove(vocab_file)
 
-    with training_args.main_process_first(desc="dataset map vocabulary creation"):
-        if not os.path.isfile(vocab_file):
-            os.makedirs(training_args.output_dir, exist_ok=True)
-            vocab_dict = create_vocabulary_from_data(raw_datasets)
+    # with training_args.main_process_first(desc="dataset map vocabulary creation"):
+    #     if not os.path.isfile(vocab_file):
+    #         os.makedirs(training_args.output_dir, exist_ok=True)
+    #         vocab_dict = create_vocabulary_from_data(raw_datasets)
 
-            # save vocab dict to be loaded into tokenizer
-            with open(vocab_file, "w") as file:
-                json.dump(vocab_dict, file)
+    #         # save vocab dict to be loaded into tokenizer
+    #         with open(vocab_file, "w") as file:
+    #             json.dump(vocab_dict, file)
 
 
     config = AutoConfig.from_pretrained(
-        model_args.model_name_or_path, cache_dir=model_args.cache_dir
+        model_args.model_name_or_path
     )
     # tokenizer is defined by `tokenizer_class` if present in config else by `model_type`
-    config_for_tokenizer = config if config.tokenizer_class is not None else None
-    tokenizer_type = config.model_type if config.tokenizer_class is None else None
-    # load feature_extractor, tokenizer and create processor
-    tokenizer = AutoTokenizer.from_pretrained(
-        training_args.output_dir,
-        config=config_for_tokenizer,
-        tokenizer_type=tokenizer_type,
-        unk_token="[UNK]",
-        pad_token="[PAD]",
-        word_delimiter_token="|",
-    )
-    feature_extractor = AutoFeatureExtractor.from_pretrained(
-        model_args.model_name_or_path, cache_dir=model_args.cache_dir
-    )
-    processor = Wav2Vec2Processor(feature_extractor=feature_extractor, tokenizer=tokenizer)
+    # config_for_tokenizer = config if config.tokenizer_class is not None else None
+    # tokenizer_type = config.model_type if config.tokenizer_class is None else None
+    # # load feature_extractor, tokenizer and create processor
+    # tokenizer = AutoTokenizer.from_pretrained(
+    #     training_args.output_dir,
+    #     config=config_for_tokenizer,
+    #     tokenizer_type=tokenizer_type,
+    #     unk_token="[UNK]",
+    #     pad_token="[PAD]",
+    #     word_delimiter_token="|",
+    # )
+    # feature_extractor = AutoFeatureExtractor.from_pretrained(
+    #     model_args.model_name_or_path
+    # )
+    # processor = Wav2Vec2Processor(feature_extractor=feature_extractor, tokenizer=tokenizer)
+    processor = Wav2Vec2Processor.from_pretrained("facebook/hubert-large-ls960-ft")
+
 
     # adapt config
     config.update(
@@ -501,9 +506,6 @@ def main():
             batch["labels"] = processor(batch["target_text"]).input_ids
         return batch
         
-    # lengths = [raw_datasets["train"][i]["duration"] for i in range(len(raw_datasets["train"]))]
-    # print(max(lengths), min(lengths))
-    
     with training_args.main_process_first(desc="dataset map preprocessing"):
         vectorized_datasets = raw_datasets.map(
             prepare_dataset,
@@ -533,15 +535,12 @@ def main():
         vectorized_datasets = vectorized_datasets.remove_columns("input_length")
 
     rand_indx = random.randint(0, len(vectorized_datasets["train"]))
-    print(processor.decode(vectorized_datasets["train"][rand_idx]["labels"]))
+    print(processor.decode(vectorized_datasets["train"][rand_indx]["labels"], group_tokens=False))
 
     if data_args.preprocessing_only:
         logger.info(f"Data preprocessing finished. Files cached at {vectorized_datasets.cache_files}")
         return
     
-    # lengths = [vectorized_datasets["train"][i]["input_length"]/16_000 for i in range(len(vectorized_datasets["train"]))]
-    # print(max(lengths), min(lengths))
-
     eval_metrics = {metric: load_metric(metric) for metric in data_args.eval_metrics}
     def compute_metrics(pred):
         pred_logits = pred.predictions
@@ -565,9 +564,6 @@ def main():
     # Instantiate custom data collator
     data_collator = DataCollatorCTCWithPadding(processor=processor)
 
-    # print(vectorized_datasets["train"][0])
-    # print(vectorized_datasets["train"][0].keys())
-    # return
 
     # Initialize Trainer
     trainer = Trainer(
