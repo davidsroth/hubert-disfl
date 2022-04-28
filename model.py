@@ -149,6 +149,9 @@ class DataTrainingArguments:
         default="target_text",
         metadata={"help": "The name of the dataset column containing the text data. Defaults to 'text'"},
     )
+    fluent_text: bool = field(
+        default=False, metadata={"help": "Use fluent transcripts or not."}
+    )
     overwrite_cache: bool = field(
         default=False, metadata={"help": "Overwrite the cached preprocessed datasets or not."}
     )
@@ -376,7 +379,7 @@ def main():
 
     num_workers = min(len(os.sched_getaffinity(0)), 16)
 
-    # raw_datasets = DatasetDict()
+    raw_datasets = DatasetDict()
 
     # if training_args.do_train:
     train_conversation_ids_path = os.path.join(SWB_ROOT, 'splits', 'ws97-train-convs.list')
@@ -388,10 +391,11 @@ def main():
         # chars_to_ignore=data_args.chars_to_ignore, 
         min_length=data_args.min_duration_in_seconds, 
         max_length=data_args.max_duration_in_seconds,
-        fluent=True
+        fluent=data_args.fluent_text
     )
     dataset = Dataset.from_pandas(switchboard_df)
-    raw_datasets = dataset.train_test_split(test_size=0.1)
+    raw_datasets = dataset.train_test_split(test_size=0.1, seed=training_args.seed)
+
     print(raw_datasets.column_names)
 
     rand_indx = random.randint(0, len(raw_datasets["train"]))
