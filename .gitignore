@@ -7,3 +7,4 @@ wandb/
 hubert_fine_tune_out/
 logs/
 logs_archive/
+trained_models/
