@@ -4,7 +4,7 @@ from .parsing_all import parse
 
 filler_words = ["Um", "um", "Uh", "uh"]
 
-def extract(conversation_id, return_fluent=False, filler_words=filler_words, chars_to_ignore=[], min_length=0, max_length=20):
+def extract(conversation_id, return_fluent=False, filler_words=filler_words, chars_to_ignore=[], min_length=0, max_length=20, verbose=False):
     """
     Annotate disfluency using parsing of conversations and returning in the form of sequence
     Params:
@@ -15,7 +15,9 @@ def extract(conversation_id, return_fluent=False, filler_words=filler_words, cha
     Returns:
         sentences: list - of extracted annotations of sequences in a conversation
     """
-    content = parse(conversation_id)
+    content = parse(conversation_id, verbose=verbose)
+    if verbose:
+        print(content)
     # List of dicts
     sentences = []
 
@@ -29,12 +31,12 @@ def extract(conversation_id, return_fluent=False, filler_words=filler_words, cha
     speaker = "None"
     for token in content:
         if len(token) == 0:
-            if running != "None" and return_fluent == False:
-                if running == '+':
-                    curr_text.append('<ip>')
-                    curr_text.append('<r>')
-                if running == '-':
-                    curr_text.append('<r>')
+            # if running != "None" and return_fluent == False:
+            #     if running == '+':
+            #         curr_text.append('<ip>')
+            #         curr_text.append('<r>')
+            #     if running == '-':
+            #         curr_text.append('<r>')
             if start_time == "None" or end_time == "None":
                 start_time = "None"
                 end_time = "None"

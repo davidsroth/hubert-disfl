@@ -4,7 +4,7 @@ import pandas as pd
 from audio_utils import get_conversation_filepath
 from parser import extract_all
 
-def extract(conversation_ids, fluent=False, min_length=0, max_length=20):
+def extract(conversation_ids, fluent=False, min_length=0, max_length=20, verbose=False):
     """
     Extracts all target labels for each sentence using parser/extract_all.py
     Params:
@@ -16,7 +16,7 @@ def extract(conversation_ids, fluent=False, min_length=0, max_length=20):
     """
     targets = []
     for conversation_id in conversation_ids:
-        sentences = extract_all.extract(conversation_id, return_fluent=fluent, min_length=min_length, max_length=max_length)
+        sentences = extract_all.extract(conversation_id, return_fluent=fluent, min_length=min_length, max_length=max_length, verbose=verbose)
         for sentence in sentences:
             sentence["audio"] = get_conversation_filepath(conversation_id)
         targets.extend(sentences)

@@ -326,7 +326,7 @@ namespaceIdentifier = '{http://nite.sourceforge.net/}'
 # their name pattern, only the first part varies
 # swnumb = sys.argv[1]
 
-def parse(swnumb):
+def parse(swnumb, verbose=False):
     # use ET package retrieve tree structure data for A and B speaker
     Afilepath = os.path.join(SWB_NXT_ROOT, 'terminals', swnumb + '.A.terminals.xml')
     Bfilepath = os.path.join(SWB_NXT_ROOT, 'terminals', swnumb + '.B.terminals.xml')
@@ -334,6 +334,8 @@ def parse(swnumb):
         Atree = ET.parse(Afilepath)
         Btree = ET.parse(Bfilepath)
     except:
+        if verbose:
+            print(f"Failed to parse {swnumb}")
         return []
 
     Aroot = Atree.getroot()
