@@ -548,6 +548,7 @@ def main():
     eval_metrics = {metric: load_metric(metric) for metric in data_args.eval_metrics}
     def compute_metrics(pred):
         pred_logits = pred.predictions
+        logger.info(pred_logits.shape)
         pred_ids = np.argmax(pred_logits, axis=-1)
 
         pred.label_ids[pred.label_ids == -100] = 0
