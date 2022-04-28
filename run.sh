@@ -1,11 +1,11 @@
 python model.py \
 	--model_name_or_path="facebook/hubert-large-ls960-ft" \
-	--output_dir="./hubert_fine_tune_out" \
-	--overwrite_output_dir \
+	--output_dir="./trained_models/hubert_fine_tune_out_disfluent" \
 	--num_train_epochs="15" \
 	--per_device_train_batch_size="16" \
 	--gradient_accumulation_steps="4" \
 	--learning_rate="1e-4" \
+	--seed="1337" \
 	--warmup_steps="1000" \
 	--min_duration_in_seconds="3" \
 	--max_duration_in_seconds="15" \
@@ -13,13 +13,13 @@ python model.py \
 	--text_column_name="text" \
 	--audio_column_name="audio" \
 	--length_column_name="input_length" \
-	--save_steps="500" \
-	--eval_steps="500" \
+	--save_steps="200" \
+	--eval_steps="100" \
 	--layerdrop="0.0" \
 	--save_total_limit="3" \
 	--freeze_feature_encoder \
 	--gradient_checkpointing \
-	--chars_to_ignore , ? . ! \; \: \" “ % ” � \
+	--chars_to_ignore , ? . ! - \; \: \" % \
 	--group_by_length \
 	--fp16 \
 	--do_train --do_eval
