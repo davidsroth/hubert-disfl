@@ -84,7 +84,7 @@ def extract(conversation_id, return_fluent=False, filler_words=filler_words, cha
                 speaker = token[1]
                 conversation_id = token[0]
             if return_fluent:
-                if token[-1] != '+' and token[-2] not in filler_words:
+                if token[-1] != '+' and token[-2] not in filler_words and not token[-2].endswith("-"):
                     curr_text.append(token[-2])
             else:
                 curr_text.append(token[-2])
