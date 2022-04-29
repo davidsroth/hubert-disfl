@@ -151,7 +151,7 @@ def main():
         logits, labels = eval_preds
         logger.info(f"logits: {logits}\n")
         logger.info(f"labels: {labels}\n")
-        preds = np.argmax(preds, axis=2)
+        preds = np.argmax(logits, axis=2)
 
         true_labels = [[labels[l] for l in label if l != -100] for label in labels]
         
