@@ -96,17 +96,17 @@ def main():
         tokenized_inputs = tokenizer.batch_encode_plus(
             batch['text'], 
             truncation=True, 
-            padding=True, 
+            # padding=True, 
             # return_tensors='pt', 
-            # is_split_into_words=True
+            is_split_into_words=True
         )
-        logger.info(tokenized_inputs)
+        logger.info(f"tokenized_inputs {tokenized_inputs}\n\n")
 
         labels = []
         for i, label in enumerate(batch['tags']):
             word_ids = tokenized_inputs.word_ids(batch_index=i)
-            logger.info(label)
-            logger.info(word_ids)
+            logger.info(f"label: {label}\n\n")
+            logger.info(f"word_ids: {word_ids}")
             previous_word_idx = None
             label_ids = []
 

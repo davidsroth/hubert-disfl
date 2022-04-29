@@ -135,7 +135,7 @@ def extract_w_tags(conversation_id, verbose=False):
                 {
                     'conversation_id': conversation_id,
                     'speaker': speaker,
-                    'text': " ".join(curr_text),
+                    'text': curr_text,
                     'tags': curr_tags
                 }
             )
