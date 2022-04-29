@@ -88,7 +88,7 @@ def main():
     raw_datasets = dataset.train_test_split(test_size=0.1, seed=training_args.seed)
 
     rand_indx = random.randint(0, len(raw_datasets["train"]))
-    print(raw_datasets["train"][rand_indx]["text"])
+    print(raw_datasets["train"][rand_indx])
 
     label_all_tokens = True
 
