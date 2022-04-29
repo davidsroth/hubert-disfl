@@ -105,7 +105,7 @@ def main():
 
             for word_idx in word_ids:
                 if word_idx is None:
-                    lavel_ids.append(-100)
+                    label_ids.append(-100)
                 elif word_idx != previous_word_idx:
                     label_ids.append(label[word_idx])
                 else:
