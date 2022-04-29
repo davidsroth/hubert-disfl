@@ -128,8 +128,13 @@ def main():
             "labels": tokenized_inputs["labels"]
         }
     
-    tokenized_ds = raw_datasets.map(tokenize_and_align_dataset, batched=True)
-    print(tokenized_ds["train"][rand_indx])
+    tokenized_ds = raw_datasets.map(
+        tokenize_and_align_dataset, 
+        batched=True,
+        remove_columns=raw_datasets["train"].column_names,
+        )
+    logger.info(tokenized_ds["train"][rand_indx])
+    logger.info(tokenized_ds.features)
 
     data_collator = DataCollatorForTokenClassification(tokenizer=tokenizer)
 
@@ -140,22 +145,20 @@ def main():
 
     label_list = [0,1]
 
-    def compute_metrics(pred):
-        logger.info(f"p: {p}\n\n")
-        preds, labels = pred
+    def compute_metrics(eval_preds):
+        logger.info(f"eval_preds: {eval_preds}\n\n")
+        logits, labels = eval_preds
         logger.info(f"preds: {preds}\n")
         logger.info(f"labels: {labels}\n")
         preds = np.argmax(preds, axis=2)
 
+        true_labels = [[labels[l] for l in label if l != -100] for label in labels]
+        
         true_preds = [
             [label_list[p] for (p,l) in zip(prediction, label) if l != -100]
             for prediction, label in zip(preds, labels)
         ]
 
-        true_labels = [
-            [label_list[l] for (p,l) in zip(prediction, label) if l != -100]
-            for prediction, label in zip(preds, labels)
-        ]
 
         results = metric.compute(preds=true_preds, references=true_labels)
 
