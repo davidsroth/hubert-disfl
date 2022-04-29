@@ -166,11 +166,13 @@ def main():
         compute_metrics=compute_metrics
     )
 
+    model_name_or_path = "roberta-base"
+
     # use last checkpoint if exist
     if last_checkpoint is not None:
         checkpoint = last_checkpoint
-    elif os.path.isdir(model_args.model_name_or_path):
-        checkpoint = model_args.model_name_or_path
+    elif os.path.isdir(model_name_or_path):
+        checkpoint = model_name_or_path
     else:
         checkpoint = None
 
