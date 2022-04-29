@@ -89,7 +89,7 @@ def main():
     label_all_tokens = True
 
     def tokenize_and_align_dataset(batch):
-        tokenized_inputs = tokenizer.batch_encode_plus(
+        tokenized_inputs = tokenizer.encode_plus(
             batch['text'], 
             truncation=True, 
             padding=True, 
