@@ -4,20 +4,25 @@ from transformers import (
     RobertaTokenizer, 
     RobertaForTokenClassification,
     RobertaModel,
-    PreTrainedmodel,
+    PreTrainedModel,
     set_seed,
     Trainer,
     TrainingArguments,
     HfArgumentParser,
     DataCollatorForTokenClassification
 )
-from SwitchboardDisfluencyDataset import get_switchboard_disfluency_dataset
+import os
+import sys
+from switchboard_disfl import get_switchboard_disfluency_dataset
+from text_utils import get_conversation_ids_from_file
+from audio_utils import SWB_ROOT, PROJECT_ROOT
 from datasets import DatasetDict, load_metric, Dataset
 import transformers
 from transformers.trainer_utils import get_last_checkpoint, is_main_process
-from transformers.utils import check_min_version
+from transformers.utils import check_min_version, logging
 from transformers.utils.versions import require_version
 import torch
+import wandb
 
 wandb.init(project="bert-disfl")
 
@@ -48,11 +53,11 @@ def main():
                 "the `--output_dir` or add `--overwrite_output_dir` to train from scratch."
             )
     # Setup logging
-    logging.basicConfig(
-        format="%(asctime)s - %(levelname)s - %(name)s - %(message)s",
-        datefmt="%m/%d/%Y %H:%M:%S",
-        handlers=[logging.StreamHandler(sys.stdout)],
-    )
+    # logging.basicConfig(
+    #     format="%(asctime)s - %(levelname)s - %(name)s - %(message)s",
+    #     datefmt="%m/%d/%Y %H:%M:%S",
+    #     handlers=[logging.StreamHandler(sys.stdout)],
+    # )
 
     logger.setLevel(logging.INFO if is_main_process(training_args.local_rank) else logging.WARN)
 
@@ -72,7 +77,7 @@ def main():
     train_conversation_ids_path = os.path.join(SWB_ROOT, 'splits', 'ws97-train-convs.list')
     train_conversation_ids = get_conversation_ids_from_file(train_conversation_ids_path)
 
-    tokenizer = RobertaTokenizer.from_pretrained("roberta-base")
+    tokenizer = RobertaTokenizer.from_pretrained("roberta-base", use_fast=True)
 
     switchboard_df = get_switchboard_disfluency_dataset(train_conversation_ids)
 
