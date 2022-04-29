@@ -113,8 +113,6 @@ def extract_w_tags(conversation_id, verbose=False):
     Annotate disfluency using parsing of conversations and returning in the form of sequence
     Params:
         conversation_id: str - conversation id
-        return_fluent: bool - if only fluent transcript required
-        filler_words: List of tokens
         chars_to_ignore: List of characters to remove from the transcripts
     Returns:
         sentences: list - of extracted annotations of sequences in a conversation
@@ -146,6 +144,7 @@ def extract_w_tags(conversation_id, verbose=False):
             sentence_id = "None"
             sentDict = {}
             curr_text = []
+            curr_tags = []
             pass
         else:
             if token[-1] == '+':
