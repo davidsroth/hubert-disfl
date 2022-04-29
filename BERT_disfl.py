@@ -122,8 +122,11 @@ def main():
             labels.append(label_ids)
         
         tokenized_inputs["labels"] = labels
-
-        return tokenized_inputs
+        return {
+            "input_ids": tokenized_inputs['input_ids'],
+            "attention_mask": tokenized_inputs['attention_mask'],
+            "labels": tokenized_inputs["labels"]
+        }
     
     tokenized_ds = raw_datasets.map(tokenize_and_align_dataset, batched=True)
     print(tokenized_ds["train"][rand_indx])
