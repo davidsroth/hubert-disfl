@@ -79,7 +79,7 @@ def main():
     train_conversation_ids_path = os.path.join(SWB_ROOT, 'splits', 'ws97-train-convs.list')
     train_conversation_ids = get_conversation_ids_from_file(train_conversation_ids_path)
 
-    tokenizer = RobertaTokenizerFast.from_pretrained("roberta-base", use_fast=True)
+    tokenizer = RobertaTokenizerFast.from_pretrained("roberta-base")
 
     switchboard_df = get_switchboard_disfluency_dataset(train_conversation_ids)
 
@@ -90,11 +90,11 @@ def main():
 
     def tokenize_and_align_dataset(batch):
         tokenized_inputs = tokenizer.batch_encode_plus(
-            batch['tokens'], 
+            batch['text'], 
             truncation=True, 
             padding=True, 
             return_tensors='pt', 
-            is_split_into_words=True
+            # is_split_into_words=True
         )
 
         labels = []
