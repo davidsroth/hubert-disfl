@@ -117,7 +117,7 @@ def main():
 
         return tokenized_inputs
     
-    tokenized_ds = raw_datasets.map(tokenize_and_align_dataset, batched=True)
+    tokenized_ds = raw_datasets.map(tokenize_and_align_dataset)
 
     data_collator = DataCollatorForTokenClassification(tokenizer=tokenizer)
 
