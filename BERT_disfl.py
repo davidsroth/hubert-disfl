@@ -100,10 +100,13 @@ def main():
             # return_tensors='pt', 
             # is_split_into_words=True
         )
+        logger.info(tokenized_inputs)
 
         labels = []
         for i, label in enumerate(batch['tags']):
             word_ids = tokenized_inputs.word_ids(batch_index=i)
+            logger.info(label)
+            logger.info(word_ids)
             previous_word_idx = None
             label_ids = []
 
