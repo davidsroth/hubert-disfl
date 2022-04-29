@@ -27,7 +27,7 @@ import wandb
 wandb.init(project="bert-disfl")
 
 def main():
-    parser = HfArgumentParser((ModelArguments, DataTrainingArguments, TrainingArguments))
+    # parser = HfArgumentParser((ModelArguments, DataTrainingArguments, TrainingArguments))
 
     training_args = TrainingArguments(
         output_dir="trained_models/bert_disfl",
