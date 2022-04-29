@@ -80,7 +80,7 @@ def main():
     train_conversation_ids_path = os.path.join(SWB_ROOT, 'splits', 'ws97-train-convs.list')
     train_conversation_ids = get_conversation_ids_from_file(train_conversation_ids_path)
 
-    tokenizer = RobertaTokenizerFast.from_pretrained("roberta-base")
+    tokenizer = RobertaTokenizerFast.from_pretrained("roberta-base", add_prefix_space=True)
 
     switchboard_df = get_switchboard_disfluency_dataset(train_conversation_ids)
 
