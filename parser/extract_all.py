@@ -133,8 +133,6 @@ def extract_w_tags(conversation_id, verbose=False):
         if len(token) == 0:
             sentDict.update(
                 {
-                    'conversation_id': conversation_id,
-                    'speaker': speaker,
                     'text': curr_text,
                     'tags': curr_tags
                 }
