@@ -89,11 +89,11 @@ def main():
     label_all_tokens = True
 
     def tokenize_and_align_dataset(batch):
-        tokenized_inputs = tokenizer.encode_plus(
+        tokenized_inputs = tokenizer.batch_encode_plus(
             batch['text'], 
             truncation=True, 
             padding=True, 
-            return_tensors='pt', 
+            # return_tensors='pt', 
             # is_split_into_words=True
         )
 
@@ -117,7 +117,7 @@ def main():
 
         return tokenized_inputs
     
-    tokenized_ds = raw_datasets.map(tokenize_and_align_dataset)
+    tokenized_ds = raw_datasets.map(tokenize_and_align_dataset, batched=True)
 
     data_collator = DataCollatorForTokenClassification(tokenizer=tokenizer)
 
