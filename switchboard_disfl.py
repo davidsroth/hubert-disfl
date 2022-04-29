@@ -57,7 +57,7 @@ def get_switchboard_audio_disfluency_dataset(conversation_ids, target_sr, min_le
     # print("Done extracting audio segments.")
     return df
 
-def get_switchboard_disfluency_dataset(conversation_ids, target_sr, min_length=0, max_length=20, fluent=False, verbose=False):
+def get_switchboard_disfluency_dataset(conversation_ids, verbose=False):
     """
     fetch dataframe with extracted audio labels with audio array
     Params:
