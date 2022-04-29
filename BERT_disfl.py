@@ -149,7 +149,7 @@ def main():
     def compute_metrics(eval_preds):
         logger.info(f"eval_preds: {eval_preds}\n\n")
         logits, labels = eval_preds
-        logger.info(f"preds: {preds}\n")
+        logger.info(f"logits: {logits}\n")
         logger.info(f"labels: {labels}\n")
         preds = np.argmax(preds, axis=2)
 
