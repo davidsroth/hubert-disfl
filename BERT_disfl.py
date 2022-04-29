@@ -33,6 +33,7 @@ def main():
 
     training_args = TrainingArguments(
         output_dir="trained_models/bert_disfl",
+        overwrite_output_dir=True,
         evaluation_strategy="steps",
         learning_rate=1e-4,
         per_device_train_batch_size=16,
@@ -141,12 +142,12 @@ def main():
         preds = np.argmax(preds, axis=2)
 
         true_preds = [
-            [label_list[p] for (p,l) in zip(prediction, label) if l != -100]
+            [label_list[p] for (p,l) in zip(preds, label) if l != -100]
             for prediction, label in zip(preds, labels)
         ]
 
         true_labels = [
-            [label_list[l] for (p,l) in zip(prediction, label) if l != -100]
+            [label_list[l] for (p,l) in zip(preds, label) if l != -100]
             for prediction, label in zip(predictions, labels)
         ]
 
