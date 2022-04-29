@@ -1,7 +1,7 @@
 import numpy as np
 from transformers import (
     AutoModelForTokenClassification,
-    RobertaTokenizer, 
+    RobertaTokenizerFast, 
     RobertaForTokenClassification,
     RobertaModel,
     PreTrainedModel,
@@ -79,7 +79,7 @@ def main():
     train_conversation_ids_path = os.path.join(SWB_ROOT, 'splits', 'ws97-train-convs.list')
     train_conversation_ids = get_conversation_ids_from_file(train_conversation_ids_path)
 
-    tokenizer = RobertaTokenizer.from_pretrained("roberta-base", use_fast=True)
+    tokenizer = RobertaTokenizerFast.from_pretrained("roberta-base", use_fast=True)
 
     switchboard_df = get_switchboard_disfluency_dataset(train_conversation_ids)
 
