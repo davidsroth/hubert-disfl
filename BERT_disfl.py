@@ -86,6 +86,9 @@ def main():
     dataset = Dataset.from_pandas(switchboard_df)
     raw_datasets = dataset.train_test_split(test_size=0.1, seed=training_args.seed)
 
+    rand_indx = random.randint(0, len(raw_datasets["train"]))
+    print(raw_datasets["train"][rand_indx]["text"])
+
     label_all_tokens = True
 
     def tokenize_and_align_dataset(batch):
@@ -118,6 +121,7 @@ def main():
         return tokenized_inputs
     
     tokenized_ds = raw_datasets.map(tokenize_and_align_dataset, batched=True)
+    print(tokenized_ds["train"][rand_indx])
 
     data_collator = DataCollatorForTokenClassification(tokenizer=tokenizer)
 
@@ -155,8 +159,8 @@ def main():
         model=model,
         data_collator=data_collator,
         args=training_args,
-        train_dataset=vectorized_datasets["train"],
-        eval_dataset=vectorized_datasets["test"],
+        train_dataset=tokenized_ds["train"],
+        eval_dataset=tokenized_ds["test"],
         tokenizer=tokenizer,
         compute_metrics=compute_metrics
     )
