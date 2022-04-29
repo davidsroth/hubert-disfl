@@ -133,8 +133,9 @@ def main():
         batched=True,
         remove_columns=raw_datasets["train"].column_names,
         )
+    logger.info(tokenized_ds.shape)
     logger.info(tokenized_ds["train"][rand_indx])
-    logger.info(tokenized_ds.features)
+    logger.info(tokenized_ds["train"].features)
 
     data_collator = DataCollatorForTokenClassification(tokenizer=tokenizer)
 
