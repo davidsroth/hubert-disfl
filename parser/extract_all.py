@@ -145,7 +145,7 @@ def extract_w_tags(conversation_id, verbose=False):
             curr_tags = []
             pass
         else:
-            if token[-1] == '+':
+            if token[-1] == '+' or token[-2] in filler_words:
                 curr_tags.append(1)
             else:
                 curr_tags.append(0)
