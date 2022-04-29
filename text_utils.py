@@ -23,6 +23,13 @@ def extract(conversation_ids, fluent=False, min_length=0, max_length=20, verbose
     
     return pd.DataFrame(targets)
 
+def extract_w_disfluency_tags(conversation_ids, verbose=False):
+    targets = []
+    for conversation_id in conversation_ids:
+        sentences = extract_all.extract_w_tags(conversation_id, verbose=verbose)
+        targets.extend(sentences)
+    return pd.DataFrame(targets)
+
 def get_conversation_ids_from_file(filepath):
     """
     fetches conversation_ids from text file containing one id per line.

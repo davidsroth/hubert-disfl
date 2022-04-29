@@ -10,7 +10,7 @@ import multiprocessing
 from dataclasses import dataclass, field
 from audio_utils import PROJECT_ROOT, SWB_ROOT, get_conversation_slice
 from text_utils import get_conversation_ids_from_file
-from switchboard_disfl import get_switchboard_disfluency_dataset
+from switchboard_disfl import get_switchboard_audio_disfluency_dataset
 from datasets import DatasetDict, load_metric, Dataset, Audio
 from typing import Dict, List, Optional, Union
 import numpy as np
@@ -385,7 +385,7 @@ def main():
     train_conversation_ids_path = os.path.join(SWB_ROOT, 'splits', 'ws97-train-convs.list')
     train_conversation_ids = get_conversation_ids_from_file(train_conversation_ids_path)
     # train_conversation_ids = train_conversation_ids[:1]
-    switchboard_df = get_switchboard_disfluency_dataset(
+    switchboard_df = get_switchboard_audio_disfluency_dataset(
         train_conversation_ids, 
         16_000, 
         # chars_to_ignore=data_args.chars_to_ignore, 

@@ -108,6 +108,53 @@ def extract(conversation_id, return_fluent=False, filler_words=filler_words, cha
             
     return sentences
 
+def extract_w_tags(conversation_id, verbose=False):
+    """
+    Annotate disfluency using parsing of conversations and returning in the form of sequence
+    Params:
+        conversation_id: str - conversation id
+        return_fluent: bool - if only fluent transcript required
+        filler_words: List of tokens
+        chars_to_ignore: List of characters to remove from the transcripts
+    Returns:
+        sentences: list - of extracted annotations of sequences in a conversation
+    """
+    content = parse(conversation_id, verbose=verbose)
+    if verbose:
+        print(content)
+    # List of dicts
+    sentences = []
+
+    sentDict = {}
+    curr_text = []
+    curr_tags = []
+    conversation_id = "None"
+    sentence_id = "None"
+    speaker = "None"
+    for token in content:
+        if len(token) == 0:
+            sentDict.update(
+                {
+                    'conversation_id': conversation_id,
+                    'speaker': speaker,
+                    'tokens': curr_text,
+                    'tags': curr_tags
+                }
+            )
+            sentences.append(sentDict)
+            conversation_id = "None"
+            sentence_id = "None"
+            sentDict = {}
+            curr_text = []
+            pass
+        else:
+            if token[-1] == '+':
+                curr_tags.append(1)
+            else:
+                curr_tags.append(0)
+            curr_text.append(token[-2])
+    return sentences
+
 if __name__ == "__main__":
     swnumb = sys.argv[1]
     if len(sys.argv) > 2:
