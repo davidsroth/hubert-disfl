@@ -89,7 +89,13 @@ def main():
     label_all_tokens = True
 
     def tokenize_and_align_dataset(batch):
-        tokenized_inputs = tokenizer(batch['tokens'], truncation=True, is_split_into_words=True)
+        tokenized_inputs = tokenizer.batch_encode_plus(
+            batch['tokens'], 
+            truncation=True, 
+            padding=True, 
+            return_tensors='pt', 
+            is_split_into_words=True
+        )
 
         labels = []
         for i, label in enumerate(batch['tags']):
