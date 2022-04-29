@@ -138,17 +138,20 @@ def main():
     label_list = [0,1]
 
     def compute_metrics(pred):
+        logger.info(f"p: {p}\n\n")
         preds, labels = pred
+        logger.info(f"preds: {preds}\n")
+        logger.info(f"labels: {labels}\n")
         preds = np.argmax(preds, axis=2)
 
         true_preds = [
-            [label_list[p] for (p,l) in zip(preds, label) if l != -100]
+            [label_list[p] for (p,l) in zip(prediction, label) if l != -100]
             for prediction, label in zip(preds, labels)
         ]
 
         true_labels = [
-            [label_list[l] for (p,l) in zip(preds, label) if l != -100]
-            for prediction, label in zip(predictions, labels)
+            [label_list[l] for (p,l) in zip(prediction, label) if l != -100]
+            for prediction, label in zip(preds, labels)
         ]
 
         results = metric.compute(preds=true_preds, references=true_labels)
