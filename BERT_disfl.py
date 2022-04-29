@@ -28,6 +28,7 @@ wandb.init(project="bert-disfl")
 
 def main():
     # parser = HfArgumentParser((ModelArguments, DataTrainingArguments, TrainingArguments))
+    logger = logging.get_logger()
 
     training_args = TrainingArguments(
         output_dir="trained_models/bert_disfl",
@@ -61,7 +62,6 @@ def main():
 
     logger.setLevel(logging.INFO if is_main_process(training_args.local_rank) else logging.WARN)
 
-    logger = logging.get_logger()
 
     # Log on each process the small summary:
     logger.warning(
